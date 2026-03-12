@@ -107,6 +107,13 @@ export async function POST(req: NextRequest) {
 
       console.error('PolzaAI error:', response.status, response.statusText, errorText)
 
+      if (response.status === 402) {
+        return NextResponse.json(
+          { error: 'Недостаточно баланса на аккаунте PolzaAI. Пополните счёт на polza.ai' } as ImageGenerateResponse,
+          { status: 502 }
+        )
+      }
+
       if (response.status === 401 || response.status === 403) {
         return NextResponse.json(
           { error: `Ошибка авторизации PolzaAI (${response.status}): ${msg}` } as ImageGenerateResponse,
