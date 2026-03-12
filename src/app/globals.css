@@ -1,0 +1,114 @@
+@import "tailwindcss";
+
+@theme {
+  /* Colors */
+  --color-background: #0A0A0B;
+  --color-surface: #141416;
+  --color-surface-hover: #1A1A1E;
+  --color-border: #2A2A2E;
+  --color-border-hover: #3A3A3E;
+  --color-text-primary: #F5F5F5;
+  --color-text-secondary: #8A8A8E;
+  --color-text-muted: #5A5A5E;
+  --color-accent: #00D4FF;
+  --color-accent-hover: #33DDFF;
+  --color-secondary: #8B5CF6;
+  --color-success: #22C55E;
+  --color-error: #EF4444;
+
+  /* Fonts */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: #0A0A0B;
+  color: #F5F5F5;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #141416;
+}
+::-webkit-scrollbar-thumb {
+  background: #2A2A2E;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3A3A3E;
+}
+
+/* Focus ring for accessibility */
+*:focus-visible {
+  outline: 2px solid #00D4FF;
+  outline-offset: 2px;
+}
+
+/* Animations */
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-fade-slide-up {
+  animation: fadeSlideUp 300ms ease-out both;
+}
+
+.animate-spin-cyan {
+  animation: spin 1s linear infinite;
+}
+
+/* Input focus glow */
+.input-focus-glow:focus {
+  border-color: #00D4FF;
+  box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+  outline: none;
+}
+
+/* Gradient button */
+.btn-gradient {
+  background: linear-gradient(135deg, #00D4FF, #8B5CF6);
+  transition: filter 0.2s, transform 0.1s;
+}
+.btn-gradient:hover:not(:disabled) {
+  filter: brightness(1.1);
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+}
+.btn-gradient:active:not(:disabled) {
+  transform: scale(0.98);
+}
+.btn-gradient:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}

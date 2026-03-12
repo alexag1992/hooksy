@@ -1,0 +1,53 @@
+{
+  "header": {
+    "title": "Hooksy",
+    "subtitle": "Viral Hook Generator"
+  },
+  "hero": {
+    "title": "Viral Hook Generator",
+    "subtitle": "Create a captivating first line in seconds"
+  },
+  "form": {
+    "topic": {
+      "label": "What is your content about?",
+      "placeholder": "E.g.: how to use AI in marketing"
+    },
+    "platform": {
+      "label": "Platform"
+    },
+    "audience": {
+      "label": "Target audience (optional)",
+      "placeholder": "E.g.: marketers 25-35 years old"
+    },
+    "context": {
+      "label": "Additional context (optional)",
+      "placeholder": "E.g.: unique offer, product features, key advantages"
+    },
+    "generate": "Generate Hooks",
+    "generating": "Generating..."
+  },
+  "results": {
+    "title": "Results",
+    "copyAll": "Copy all",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "generating": "Generating hooks...",
+    "tryAgain": "Try again",
+    "error": "Something went wrong. Please try again.",
+    "errorRateLimit": "Too many requests. Please wait a minute.",
+    "count": "{count} hooks",
+    "clickHint": "Click a hook to expand and generate ad text"
+  },
+  "ad": {
+    "generate": "Generate Ad Text",
+    "generating": "Generating text...",
+    "copy": "Copy",
+    "regenerate": "Regenerate",
+    "makeVariants": "Make 3 Variants",
+    "regenerateVariants": "Regenerate Variants",
+    "singleVariant": "Single Variant",
+    "error": "Failed to generate. Please try again.",
+    "retry": "Retry"
+  },
+  "footer": "© 2025 Hooksy"
+}
