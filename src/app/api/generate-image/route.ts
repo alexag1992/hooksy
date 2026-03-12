@@ -100,19 +100,29 @@ export async function POST(req: NextRequest) {
     })
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
-      const msg = (errorData as { message?: string }).message || response.statusText
+      const errorText = await response.text().catch(() => '')
+      let errorData: Record<string, unknown> = {}
+      try { errorData = JSON.parse(errorText) } catch { /* ignore */ }
+      const msg = (errorData.message as string) || (errorData.error as string) || response.statusText
+
+      console.error('PolzaAI error:', response.status, response.statusText, errorText)
+
+      if (response.status === 401 || response.status === 403) {
+        return NextResponse.json(
+          { error: `Ошибка авторизации PolzaAI (${response.status}): ${msg}` } as ImageGenerateResponse,
+          { status: 502 }
+        )
+      }
 
       if (response.status === 422 || response.status === 400) {
         return NextResponse.json(
-          { error: 'Ошибка: запрос нарушает правила генерации изображений' } as ImageGenerateResponse,
+          { error: `Ошибка: запрос нарушает правила генерации изображений (${msg})` } as ImageGenerateResponse,
           { status: 422 }
         )
       }
 
-      console.error('PolzaAI error:', response.status, msg)
       return NextResponse.json(
-        { error: 'Ошибка генерации: сервис временно недоступен' } as ImageGenerateResponse,
+        { error: `Ошибка генерации (${response.status}): ${msg}` } as ImageGenerateResponse,
         { status: 502 }
       )
     }
