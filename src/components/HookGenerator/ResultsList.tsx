@@ -2,8 +2,9 @@
 
 import { useState, useCallback } from 'react'
 import { useTranslations } from 'next-intl'
-import { Check, Copy, ChevronDown, Loader2, RefreshCw, FileText } from 'lucide-react'
+import { Check, Copy, ChevronDown, Loader2, RefreshCw, FileText, Image as ImageIcon } from 'lucide-react'
 import { useGenerateAd } from '@/hooks/useGenerateAd'
+import { CreativeGenerator } from '@/components/CreativeGenerator'
 import type { GenerateStatus, Platform, Locale } from '@/types'
 
 interface HookCardProps {
@@ -58,20 +59,55 @@ const VARIANT_COLORS = [
 
 const VARIANT_LABEL_COLORS = ['text-[#8B5CF6]', 'text-[#00D4FF]', 'text-[#F59E0B]']
 
+function CreativeButton({
+  onClick,
+  active,
+  label,
+  disabled,
+}: {
+  onClick: () => void
+  active: boolean
+  label: string
+  disabled?: boolean
+}) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={`
+        flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs
+        border transition-all duration-200 shrink-0
+        disabled:opacity-50 disabled:cursor-not-allowed
+        ${
+          active
+            ? 'border-[#00D4FF]/50 bg-[#00D4FF]/10 text-[#00D4FF]'
+            : 'border-[#2A2A2E] text-[#8A8A8E] hover:border-[#3A3A3E] hover:text-[#F5F5F5]'
+        }
+      `}
+    >
+      <ImageIcon className="h-3.5 w-3.5" />
+      {label}
+    </button>
+  )
+}
+
 function AdTextBlock({
   text,
+  hook,
   locale,
   onRegenerate,
   onGenerateVariants,
   isLoading,
 }: {
   text: string
+  hook: string
   locale: Locale
   onRegenerate: () => void
   onGenerateVariants: () => void
   isLoading: boolean
 }) {
   const t = useTranslations('ad')
+  const [showCreative, setShowCreative] = useState(false)
 
   return (
     <div className="flex flex-col gap-3 pt-3">
@@ -108,19 +144,27 @@ function AdTextBlock({
           <FileText className="h-3.5 w-3.5" />
           {t('makeVariants')}
         </button>
+        <CreativeButton
+          onClick={() => setShowCreative((v) => !v)}
+          active={showCreative}
+          label={t('createCreative')}
+        />
       </div>
+      {showCreative && <CreativeGenerator hook={hook} adText={text} locale={locale} />}
     </div>
   )
 }
 
 function AdVariantsBlock({
   variants,
+  hook,
   locale,
   onRegenerate,
   onRegenerateSingle,
   isLoading,
 }: {
   variants: [string, string, string]
+  hook: string
   locale: Locale
   onRegenerate: () => void
   onRegenerateSingle: () => void
@@ -128,6 +172,11 @@ function AdVariantsBlock({
 }) {
   const t = useTranslations('ad')
   const labels = VARIANT_LABELS[locale]
+  const [showCreative, setShowCreative] = useState<boolean[]>([false, false, false])
+
+  const toggleCreative = useCallback((i: number) => {
+    setShowCreative((prev) => prev.map((v, idx) => (idx === i ? !v : v)))
+  }, [])
 
   return (
     <div className="flex flex-col gap-3 pt-3">
@@ -135,9 +184,15 @@ function AdVariantsBlock({
         <div key={i} className={`rounded-xl p-4 border ${VARIANT_COLORS[i]}`}>
           <p className={`text-xs font-semibold mb-2 ${VARIANT_LABEL_COLORS[i]}`}>{labels[i]}</p>
           <p className="text-[#F5F5F5] text-[14px] leading-relaxed whitespace-pre-line">{text}</p>
-          <div className="mt-3">
+          <div className="mt-3 flex items-center gap-2 flex-wrap">
             <CopyButton text={text} label={t('copy')} />
+            <CreativeButton
+              onClick={() => toggleCreative(i)}
+              active={showCreative[i]}
+              label={t('createCreative')}
+            />
           </div>
+          {showCreative[i] && <CreativeGenerator hook={hook} adText={text} locale={locale} />}
         </div>
       ))}
       <div className="flex items-center gap-2 flex-wrap">
@@ -262,7 +317,6 @@ function HookCard({ hook, index, topic, platform, audience, context, locale }: H
       {isExpanded && (
         <div className="px-4 pb-4">
           <div className="border-t border-[#2A2A2E] pt-3">
-            {/* Idle state: show generate button */}
             {adStatus === 'idle' && (
               <button
                 onClick={handleGenerate}
@@ -279,7 +333,6 @@ function HookCard({ hook, index, topic, platform, audience, context, locale }: H
               </button>
             )}
 
-            {/* Loading state */}
             {adStatus === 'loading' && (
               <div className="flex items-center gap-2 py-2 text-[#8A8A8E] text-sm">
                 <Loader2 className="h-4 w-4 animate-spin text-[#00D4FF]" />
@@ -287,7 +340,6 @@ function HookCard({ hook, index, topic, platform, audience, context, locale }: H
               </div>
             )}
 
-            {/* Error state */}
             {adStatus === 'error' && (
               <div className="flex items-center gap-3 py-2">
                 <span className="text-[#EF4444] text-sm">{tAd('error')}</span>
@@ -300,10 +352,10 @@ function HookCard({ hook, index, topic, platform, audience, context, locale }: H
               </div>
             )}
 
-            {/* Success: single ad text */}
             {adStatus === 'success' && adText && (
               <AdTextBlock
                 text={adText}
+                hook={hook}
                 locale={locale}
                 onRegenerate={handleRegenerateSingle}
                 onGenerateVariants={handleGenerateVariants}
@@ -311,10 +363,10 @@ function HookCard({ hook, index, topic, platform, audience, context, locale }: H
               />
             )}
 
-            {/* Success: 3 variants */}
             {adStatus === 'success' && variants && (
               <AdVariantsBlock
                 variants={variants}
+                hook={hook}
                 locale={locale}
                 onRegenerate={handleGenerateVariants}
                 onRegenerateSingle={handleRegenerateSingle}

@@ -81,6 +81,19 @@ body {
   }
 }
 
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 1.5s infinite;
+}
+
 .animate-fade-slide-up {
   animation: fadeSlideUp 300ms ease-out both;
 }

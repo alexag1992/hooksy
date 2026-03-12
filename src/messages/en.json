@@ -46,8 +46,27 @@
     "makeVariants": "Make 3 Variants",
     "regenerateVariants": "Regenerate Variants",
     "singleVariant": "Single Variant",
+    "createCreative": "Create Creative",
     "error": "Failed to generate. Please try again.",
     "retry": "Retry"
+  },
+  "creative": {
+    "title": "Creative Generator",
+    "references": "Reference images",
+    "uploadBtn": "Upload file",
+    "dropHint": "or drag & drop here",
+    "prompt": "Image instructions",
+    "promptPlaceholder": "E.g.: modern advertising banner, bright colors",
+    "useContext": "Use hook and ad text as context",
+    "aspectRatio": "Aspect ratio",
+    "resolution": "Resolution",
+    "generate": "Generate",
+    "generating": "Generating...",
+    "download": "Download original",
+    "emptyHint": "Press «Generate» to create an image",
+    "errorApi": "PolzaAI API connection error",
+    "errorGeneration": "Generation error: service temporarily unavailable",
+    "errorPolicy": "Error: request violates image generation policy"
   },
   "footer": "© 2025 Hooksy"
 }

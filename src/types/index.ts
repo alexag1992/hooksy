@@ -29,6 +29,28 @@ export interface AdGenerateResponse {
   variants?: [string, string, string]
 }
 
+export interface ImageGenerateRequest {
+  hook?: string
+  adText?: string
+  prompt: string
+  aspectRatio: string
+  resolution: '1K' | '2K' | '4K'
+  useContext: boolean
+  references: string[] // base64 data URLs
+}
+
+export interface ImageGenerateResponse {
+  image_url?: string
+  error?: string
+}
+
+export interface GeneratedImage {
+  id: string
+  status: 'loading' | 'ready' | 'error'
+  url?: string
+  errorMsg?: string
+}
+
 export interface PlatformConfig {
   id: Platform
   label: string

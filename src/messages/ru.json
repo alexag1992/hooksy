@@ -46,8 +46,27 @@
     "makeVariants": "Сделать 3 варианта",
     "regenerateVariants": "Обновить варианты",
     "singleVariant": "Один вариант",
+    "createCreative": "Создать креатив",
     "error": "Не удалось сгенерировать. Попробуйте ещё раз.",
     "retry": "Повторить"
+  },
+  "creative": {
+    "title": "Генератор креативов",
+    "references": "Референс-изображения",
+    "uploadBtn": "Загрузить файл",
+    "dropHint": "или перетащите сюда",
+    "prompt": "Инструкции для изображения",
+    "promptPlaceholder": "Например: modern advertising banner, bright colors",
+    "useContext": "Учитывать хук и текст объявления",
+    "aspectRatio": "Соотношение сторон",
+    "resolution": "Разрешение",
+    "generate": "Сгенерировать",
+    "generating": "Генерируем...",
+    "download": "Скачать оригинал",
+    "emptyHint": "Нажмите «Сгенерировать» чтобы создать изображение",
+    "errorApi": "Ошибка соединения с API PolzaAI",
+    "errorGeneration": "Ошибка генерации: сервис временно недоступен",
+    "errorPolicy": "Ошибка: запрос нарушает правила генерации изображений"
   },
   "footer": "© 2025 Хукси"
 }
