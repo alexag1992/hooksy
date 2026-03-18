@@ -78,6 +78,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   )
 
   useEffect(() => {
+    // Get initial session immediately (doesn't wait for onAuthStateChange)
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      setUser(session?.user ?? null)
+      if (session?.user) {
+        await fetchUserData(session.user.id)
+      }
+      setLoading(false)
+    })
+
+    // Listen for future auth changes (sign in / sign out)
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
