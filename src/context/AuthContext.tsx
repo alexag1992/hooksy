@@ -59,19 +59,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchUserData = useCallback(
     async (userId: string) => {
-      const [creditsRes, demoRes, subRes] = await Promise.all([
-        supabase.from('user_credits').select('balance').eq('user_id', userId).single(),
-        supabase.from('demo_usage').select('*').eq('user_id', userId).single(),
-        supabase
-          .from('subscriptions')
-          .select('status')
-          .eq('user_id', userId)
-          .eq('status', 'active')
-          .maybeSingle(),
-      ])
-      setCredits(creditsRes.data?.balance ?? 0)
-      setDemoUsage(demoRes.data ?? null)
-      setHasActiveSubscription(!!subRes.data)
+      try {
+        const [creditsRes, demoRes, subRes] = await Promise.all([
+          supabase.from('user_credits').select('balance').eq('user_id', userId).maybeSingle(),
+          supabase.from('demo_usage').select('*').eq('user_id', userId).maybeSingle(),
+          supabase
+            .from('subscriptions')
+            .select('status')
+            .eq('user_id', userId)
+            .eq('status', 'active')
+            .maybeSingle(),
+        ])
+        setCredits(creditsRes.data?.balance ?? 0)
+        setDemoUsage(demoRes.data ?? null)
+        setHasActiveSubscription(!!subRes.data)
+      } catch {
+        // Non-critical — leave defaults
+      }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
@@ -85,7 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await fetchUserData(session.user.id)
       }
       setLoading(false)
-    })
+    }).catch(() => setLoading(false))
 
     // Listen for future auth changes (sign in / sign out)
     const {
