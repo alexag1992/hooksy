@@ -3,8 +3,8 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { getUser } from '@/lib/supabase/getUser'
 
 export async function GET() {
-  const { user, error } = await getUser()
-  if (error || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const user = await getUser()
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const admin = createAdminClient()
 
