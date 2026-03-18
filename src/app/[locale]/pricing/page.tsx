@@ -125,10 +125,12 @@ export default async function PricingPage({
           </ul>
 
           <a
-            href="mailto:lifemediasmm@gmail.com?subject=Индивидуальный тариф Хукси"
+            href="https://t.me/alex_ag92"
+            target="_blank"
+            rel="noopener noreferrer"
             className="mt-auto w-full py-3 rounded-xl font-medium text-sm text-center transition-all border border-[#8B5CF6]/50 text-[#8B5CF6] hover:bg-[#8B5CF6]/10"
           >
-            Написать нам
+            Написать в Telegram
           </a>
         </div>
       </div>
