@@ -15,7 +15,7 @@ export async function GET() {
   // Fetch all profiles
   const { data: profiles } = await admin
     .from('profiles')
-    .select('id, email, full_name, created_at, is_admin')
+    .select('id, email, name, created_at, is_admin')
     .order('created_at', { ascending: false })
 
   if (!profiles) return NextResponse.json([])
@@ -35,7 +35,7 @@ export async function GET() {
   const rows = profiles.map((p) => ({
     id: p.id,
     email: p.email ?? '',
-    full_name: p.full_name ?? null,
+    full_name: p.name ?? null,
     created_at: p.created_at,
     is_admin: p.is_admin ?? false,
     hooks_used: demoMap[p.id]?.hooks_used ?? 0,
