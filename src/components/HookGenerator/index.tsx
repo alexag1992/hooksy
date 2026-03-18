@@ -9,11 +9,13 @@ import { ContextInput } from './ContextInput'
 import { GenerateButton } from './GenerateButton'
 import { ResultsList } from './ResultsList'
 import { useGenerate } from '@/hooks/useGenerate'
+import { useAuth } from '@/context/AuthContext'
 import type { Platform, Locale } from '@/types'
 
 export function HookGenerator() {
   const locale = useLocale() as Locale
   const { hooks, status, error, generate, reset } = useGenerate()
+  const { hasActiveSubscription, isAdmin } = useAuth()
 
   const [topic, setTopic] = useState('')
   const [platform, setPlatform] = useState<Platform | null>(null)
@@ -46,6 +48,9 @@ export function HookGenerator() {
         <AudienceInput value={audience} onChange={setAudience} disabled={isLoading} />
         <ContextInput value={context} onChange={setContext} disabled={isLoading} />
         <GenerateButton onClick={handleGenerate} loading={isLoading} disabled={!canGenerate} />
+        {(hasActiveSubscription || isAdmin) && (
+          <p className="text-center text-[10px] text-[#3A3A3E]">1 кредит за генерацию</p>
+        )}
       </div>
 
       {/* Divider */}

@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react'
 import { useTranslations } from 'next-intl'
 import { Check, Copy, ChevronDown, Loader2, RefreshCw, FileText, Image as ImageIcon } from 'lucide-react'
 import { useGenerateAd } from '@/hooks/useGenerateAd'
+import { useAuth } from '@/context/AuthContext'
 import { CreativeGenerator } from '@/components/CreativeGenerator'
 import type { GenerateStatus, Platform, Locale } from '@/types'
 
@@ -262,6 +263,7 @@ function HookCard({ hook, index, topic, platform, audience, context, locale }: H
   }, [generateSingle, adParams])
 
   const isAdLoading = adStatus === 'loading'
+  const { hasActiveSubscription, isAdmin } = useAuth()
 
   return (
     <div
@@ -318,19 +320,24 @@ function HookCard({ hook, index, topic, platform, audience, context, locale }: H
         <div className="px-4 pb-4">
           <div className="border-t border-[#2A2A2E] pt-3">
             {adStatus === 'idle' && (
-              <button
-                onClick={handleGenerate}
-                className="
-                  flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium
-                  bg-gradient-to-r from-[#00D4FF]/10 to-[#8B5CF6]/10
-                  border border-[#00D4FF]/30 text-[#00D4FF]
-                  hover:from-[#00D4FF]/20 hover:to-[#8B5CF6]/20 hover:border-[#00D4FF]/50
-                  transition-all duration-200
-                "
-              >
-                <FileText className="h-4 w-4" />
-                {tAd('generate')}
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={handleGenerate}
+                  className="
+                    flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium
+                    bg-gradient-to-r from-[#00D4FF]/10 to-[#8B5CF6]/10
+                    border border-[#00D4FF]/30 text-[#00D4FF]
+                    hover:from-[#00D4FF]/20 hover:to-[#8B5CF6]/20 hover:border-[#00D4FF]/50
+                    transition-all duration-200
+                  "
+                >
+                  <FileText className="h-4 w-4" />
+                  {tAd('generate')}
+                </button>
+                {(hasActiveSubscription || isAdmin) && (
+                  <span className="text-[10px] text-[#3A3A3E]">2 кредита</span>
+                )}
+              </div>
             )}
 
             {adStatus === 'loading' && (

@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl'
 import { Upload, X, Loader2, Download, ZoomIn, Image as ImageIcon } from 'lucide-react'
 import { useGenerateImage } from '@/hooks/useGenerateImage'
 import { useAuth } from '@/context/AuthContext'
+import { useRouter } from '@/i18n/navigation'
 import type { Locale, GeneratedImage } from '@/types'
 
 // Aspect ratio config: [value, label, widthRatio, heightRatio]
@@ -131,7 +132,8 @@ interface CreativeGeneratorProps {
 export function CreativeGenerator({ hook, adText }: CreativeGeneratorProps) {
   const t = useTranslations('creative')
   const { images, generate } = useGenerateImage()
-  const { hasActiveSubscription } = useAuth()
+  const { hasActiveSubscription, isAdmin } = useAuth()
+  const router = useRouter()
 
   const [references, setReferences] = useState<string[]>([])
   const [prompt, setPrompt] = useState('')
@@ -362,11 +364,15 @@ export function CreativeGenerator({ hook, adText }: CreativeGeneratorProps) {
             {t('generate')}
           </button>
 
-          {hasGenerated && !hasActiveSubscription && (
+          {(hasActiveSubscription || isAdmin) && !hasGenerated && (
+            <p className="text-center text-[10px] text-[#3A3A3E]">15 кредитов</p>
+          )}
+
+          {hasGenerated && !hasActiveSubscription && !isAdmin && (
             <p className="text-xs text-[#5A5A5E] text-center leading-relaxed">
               В демо-режиме — 1 креатив на цепочку.{' '}
               <button
-                onClick={() => window.location.reload()}
+                onClick={() => router.push('/')}
                 className="text-[#00D4FF] hover:underline"
               >
                 Начать новую цепочку
