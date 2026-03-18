@@ -1,4 +1,6 @@
 import { setRequestLocale } from 'next-intl/server'
+import { Link } from '@/i18n/navigation'
+import { ArrowLeft } from 'lucide-react'
 
 export default async function OfertaPage({
   params,
@@ -159,6 +161,13 @@ export default async function OfertaPage({
           <p><span className="text-[#5A5A5E]">К/с:</span> 30101810745374525104</p>
         </div>
       </section>
+
+      <div className="mt-4 pb-12">
+        <Link href="/" className="inline-flex items-center gap-2 text-sm text-[#5A5A5E] hover:text-[#C0C0C4] transition-colors">
+          <ArrowLeft className="h-4 w-4" />
+          На главную
+        </Link>
+      </div>
     </div>
   )
 }
