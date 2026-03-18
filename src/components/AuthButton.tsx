@@ -24,7 +24,7 @@ export function AuthButton() {
     )
   }
 
-  const demoLeft = demoUsage ? DEMO_LIMITS.hooks - demoUsage.hooks_used : 0
+  const demoLeft = demoUsage ? DEMO_LIMITS.hooks - demoUsage.hooks_used : null
 
   return (
     <div className="flex items-center gap-2">
@@ -34,6 +34,8 @@ export function AuthButton() {
           <Coins size={14} className="text-[#00D4FF]" />
           <span>{credits} кр</span>
         </div>
+      ) : demoLeft === null ? (
+        <div className="h-6 w-20 animate-pulse rounded-lg bg-[#1E1E22]" />
       ) : (
         <div
           className="rounded-lg px-3 py-1.5 text-xs font-medium"
