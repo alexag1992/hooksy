@@ -5,6 +5,7 @@ import { routing } from '@/i18n/routing'
 import { Header } from '@/components/Header'
 import { AuthProvider } from '@/context/AuthContext'
 import { GateModal } from '@/components/GateModal'
+import { OnboardingModal } from '@/components/OnboardingModal'
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }))
@@ -42,6 +43,7 @@ export default async function LocaleLayout({
           </footer>
         </div>
         <GateModal />
+        <OnboardingModal />
       </AuthProvider>
     </NextIntlClientProvider>
   )
