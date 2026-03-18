@@ -37,7 +37,13 @@ export function useGenerateImage(): UseGenerateImageReturn {
         if (res.status === 403) {
           const data = await res.json().catch(() => ({}))
           setImages((prev) => prev.filter((img) => img.id !== id))
-          openGate(data.error === 'demo_exhausted' ? 'demo_exhausted' : 'insufficient_credits')
+          const reason =
+            data.error === 'demo_image_exhausted'
+              ? 'demo_image_exhausted'
+              : data.error === 'demo_exhausted'
+              ? 'demo_exhausted'
+              : 'insufficient_credits'
+          openGate(reason)
           return
         }
 

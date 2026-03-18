@@ -43,7 +43,9 @@ export async function POST(req: NextRequest) {
 
   const creditCheck = await checkAndConsume(user.id, 'image')
   if (!creditCheck.allowed) {
-    return NextResponse.json({ error: creditCheck.reason } as ImageGenerateResponse, { status: 403 })
+    const errorCode =
+      creditCheck.reason === 'demo_exhausted' ? 'demo_image_exhausted' : creditCheck.reason
+    return NextResponse.json({ error: errorCode } as ImageGenerateResponse, { status: 403 })
   }
 
   const ip = getClientIp(req)

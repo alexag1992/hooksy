@@ -1,6 +1,7 @@
 import { useTranslations } from 'next-intl'
 import { setRequestLocale } from 'next-intl/server'
 import { HookGenerator } from '@/components/HookGenerator'
+import { UnauthGate } from '@/components/UnauthGate'
 
 function HeroSection() {
   const t = useTranslations('hero')
@@ -26,7 +27,9 @@ export default async function HomePage({
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 md:py-14">
       <HeroSection />
-      <HookGenerator />
+      <UnauthGate>
+        <HookGenerator />
+      </UnauthGate>
     </div>
   )
 }

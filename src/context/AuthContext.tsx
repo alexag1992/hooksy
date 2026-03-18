@@ -17,7 +17,7 @@ export interface DemoUsage {
   images_used: number
 }
 
-export type GateReason = 'not_authenticated' | 'demo_exhausted' | 'insufficient_credits'
+export type GateReason = 'not_authenticated' | 'demo_exhausted' | 'demo_image_exhausted' | 'insufficient_credits'
 
 interface AuthContextType {
   user: User | null
@@ -83,27 +83,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     // Get initial session immediately (doesn't wait for onAuthStateChange)
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null)
-      if (session?.user) {
-        await fetchUserData(session.user.id)
-      }
       setLoading(false)
+      if (session?.user) {
+        fetchUserData(session.user.id)
+      }
     }).catch(() => setLoading(false))
 
     // Listen for future auth changes (sign in / sign out)
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null)
+      setLoading(false)
       if (session?.user) {
-        await fetchUserData(session.user.id)
+        fetchUserData(session.user.id)
       } else {
         setCredits(0)
         setDemoUsage(null)
         setHasActiveSubscription(false)
       }
-      setLoading(false)
     })
 
     return () => subscription.unsubscribe()

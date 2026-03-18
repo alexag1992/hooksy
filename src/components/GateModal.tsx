@@ -10,6 +10,7 @@ export function GateModal() {
 
   const isAuth = gateReason === 'not_authenticated'
   const isDemo = gateReason === 'demo_exhausted'
+  const isDemoImage = gateReason === 'demo_image_exhausted'
 
   return (
     <div
@@ -75,13 +76,19 @@ export function GateModal() {
           </>
         )}
 
-        {(isDemo || gateReason === 'insufficient_credits') && (
+        {(isDemo || isDemoImage || gateReason === 'insufficient_credits') && (
           <>
             <h2 className="mb-2 text-center text-xl font-bold text-[#F5F5F5]">
-              {isDemo ? 'Демо-режим исчерпан' : 'Недостаточно кредитов'}
+              {isDemoImage
+                ? 'Лимит креативов в демо'
+                : isDemo
+                ? 'Демо-режим исчерпан'
+                : 'Недостаточно кредитов'}
             </h2>
             <p className="mb-6 text-center text-sm text-[#8A8A8E]">
-              {isDemo
+              {isDemoImage
+                ? 'В демо-режиме доступен только 1 креатив. Оформите подписку, чтобы генерировать неограниченно.'
+                : isDemo
                 ? 'Вы использовали все 3 бесплатные цепочки. Оформите подписку для продолжения.'
                 : 'На вашем балансе недостаточно кредитов. Продлите подписку.'}
             </p>
