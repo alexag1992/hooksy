@@ -110,8 +110,13 @@ export function OnboardingModal() {
           ))}
         </div>
 
-        {/* Content */}
-        <div className="relative px-8 pt-14 pb-8">
+        {/* Step counter */}
+        <div className="absolute top-4 right-10 text-xs text-[#3A3A3E]">
+          {step + 1} / {STEPS.length}
+        </div>
+
+        {/* Content — key forces remount + fade-in on step change */}
+        <div key={step} className="relative px-5 sm:px-8 pt-14 pb-6 sm:pb-8 animate-fade-slide-up">
           {/* Icon */}
           <div className="mb-5 flex justify-center">
             <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#1E1E22] border border-[#2A2A2E]">

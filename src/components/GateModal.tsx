@@ -19,7 +19,7 @@ export function GateModal() {
       onClick={closeGate}
     >
       <div
-        className="relative w-full max-w-md rounded-2xl border border-[#2A2A2E] bg-[#141416] p-8 shadow-2xl"
+        className="relative w-full max-w-md rounded-2xl border border-[#2A2A2E] bg-[#141416] p-5 sm:p-8 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close */}

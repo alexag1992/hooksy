@@ -18,7 +18,7 @@ export function UnauthGate({ children }: { children: ReactNode }) {
       </div>
 
       {/* Overlay CTA */}
-      <div className="absolute inset-0 flex items-start justify-center pt-24 px-4">
+      <div className="absolute inset-0 flex items-start justify-center pt-8 sm:pt-24 px-4">
         <div className="w-full max-w-sm rounded-2xl border border-[#2A2A2E] bg-[#141416] p-8 text-center shadow-2xl">
           <div className="mb-5 flex justify-center">
             <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#1E1E22] border border-[#2A2A2E]">

@@ -90,7 +90,14 @@ export default function ProfilePage() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-14">
-      <h1 className="text-2xl font-bold text-[#F5F5F5] mb-8">{c.title}</h1>
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-2xl font-bold text-[#F5F5F5]">{c.title}</h1>
+        {isAdmin && (
+          <Link href="/admin" className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-[#8B5CF6]/10 text-[#8B5CF6] border border-[#8B5CF6]/20 hover:bg-[#8B5CF6]/20 transition-colors">
+            Админ-панель →
+          </Link>
+        )}
+      </div>
 
       {/* User card */}
       <div className="rounded-2xl border border-[#2A2A2E] bg-[#141416] p-5 flex items-center gap-4 mb-6">
@@ -169,7 +176,7 @@ export default function ProfilePage() {
       {!hasActiveSubscription && !isAdmin && demoUsage && (
         <div className="mb-6">
           <p className="text-xs text-[#5A5A5E] mb-3 uppercase tracking-wide">{c.usedInDemo}</p>
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-3 sm:grid-cols-3 gap-2 sm:gap-3">
             <StatCard
               label={c.hooks}
               value={`${demoUsage.hooks_used}/${DEMO_LIMITS.hooks}`}
