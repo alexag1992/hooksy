@@ -12,7 +12,7 @@ export default async function OfertaPage({
     <div className="mx-auto max-w-3xl px-4 py-12 text-[#C0C0C4]">
       <h1 className="text-2xl font-bold text-[#F5F5F5] mb-2">Публичная оферта</h1>
       <p className="text-sm text-[#5A5A5E] mb-10">
-        Дата публикации: 01 апреля 2025 г.
+        Дата публикации: 18 марта 2026 г.
       </p>
 
       <section className="mb-8">
@@ -153,7 +153,6 @@ export default async function OfertaPage({
           <p><span className="text-[#5A5A5E]">Юридический адрес:</span> 170034, Тверская Область, г. Тверь, пр-кт Чайковского, д. 28/2, офис 621</p>
           <p><span className="text-[#5A5A5E]">Генеральный директор:</span> Кенда Алексей Анатольевич</p>
           <p><span className="text-[#5A5A5E]">Email:</span> lifemediasmm@gmail.com</p>
-          <p><span className="text-[#5A5A5E]">Телефон:</span> 8 (980) 642-4187</p>
           <p className="pt-2"><span className="text-[#5A5A5E]">Банк:</span> ООО «Банк Точка»</p>
           <p><span className="text-[#5A5A5E]">Р/с:</span> 40702810820000008168</p>
           <p><span className="text-[#5A5A5E]">БИК:</span> 044525104</p>

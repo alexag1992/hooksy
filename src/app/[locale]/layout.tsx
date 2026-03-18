@@ -41,11 +41,10 @@ export default async function LocaleLayout({
               <div className="flex flex-wrap justify-center gap-4">
                 <a href="/oferta" className="hover:text-[#C0C0C4] transition-colors">Публичная оферта</a>
                 <a href="mailto:lifemediasmm@gmail.com" className="hover:text-[#C0C0C4] transition-colors">lifemediasmm@gmail.com</a>
-                <a href="tel:+79806424187" className="hover:text-[#C0C0C4] transition-colors">8 (980) 642-4187</a>
               </div>
               <p>ООО «ЛАЙФ МЕДИА» · ИНН 6950213657 · ОГРН 1176952020145</p>
               <p>170034, г. Тверь, пр-кт Чайковского, д. 28/2, офис 621</p>
-              <p>© 2025 Хукси</p>
+              <p>© 2026 Хукси</p>
             </div>
           </footer>
         </div>
