@@ -9,7 +9,7 @@ export const CREDIT_COSTS = {
 export const DEMO_LIMITS = {
   hooks: 3,
   ads: 3,
-  images: 1,
+  images: 3,
 } as const
 
 export type CreditAction = keyof typeof CREDIT_COSTS
