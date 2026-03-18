@@ -1,8 +1,47 @@
+import type { Metadata } from 'next'
 import { useTranslations } from 'next-intl'
 import { setRequestLocale } from 'next-intl/server'
 import { HookGenerator } from '@/components/HookGenerator'
 import { UnauthGate } from '@/components/UnauthGate'
 import { DemoBanner } from '@/components/DemoBanner'
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}): Promise<Metadata> {
+  const { locale } = await params
+  const isRu = locale === 'ru'
+  return {
+    title: isRu
+      ? 'Хукси — Генератор вирусных хуков для социальных сетей'
+      : 'Hooksy — AI Viral Hook Generator for Social Media',
+    description: isRu
+      ? 'Создавайте цепляющие первые строки для YouTube, TikTok, Instagram и Telegram с помощью ИИ. Бесплатное демо — 3 генерации без регистрации.'
+      : 'Generate viral hooks for YouTube, TikTok, Instagram and Telegram using AI. Free demo — 3 generations without sign-up.',
+    openGraph: {
+      title: isRu ? 'Хукси — Генератор вирусных хуков' : 'Hooksy — AI Hook Generator',
+      description: isRu
+        ? 'ИИ генерирует цепляющие хуки за секунды. Попробуйте бесплатно.'
+        : 'AI generates viral hooks in seconds. Try for free.',
+      url: 'https://hooksy.ru',
+      siteName: 'Хукси',
+      locale: isRu ? 'ru_RU' : 'en_US',
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: isRu ? 'Хукси — Генератор вирусных хуков' : 'Hooksy — AI Hook Generator',
+      description: isRu
+        ? 'ИИ генерирует цепляющие хуки за секунды.'
+        : 'AI generates viral hooks in seconds.',
+    },
+    alternates: {
+      canonical: `https://hooksy.ru/${locale}`,
+      languages: { ru: 'https://hooksy.ru/ru', en: 'https://hooksy.ru/en' },
+    },
+  }
+}
 
 function HeroSection() {
   const t = useTranslations('hero')

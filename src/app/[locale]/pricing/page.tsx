@@ -1,6 +1,17 @@
+import type { Metadata } from 'next'
 import { setRequestLocale } from 'next-intl/server'
 import { Check, Zap, MessageCircle } from 'lucide-react'
 import { Link } from '@/i18n/navigation'
+
+export const metadata: Metadata = {
+  title: 'Тарифы — Хукси',
+  description: 'Подписка Хукси Pro — 990 ₽/мес, 300 кредитов. Генерируйте хуки, тексты объявлений и рекламные креативы без ограничений.',
+  openGraph: {
+    title: 'Тарифы — Хукси',
+    description: '990 ₽/мес — 300 кредитов на хуки, тексты и изображения.',
+  },
+  robots: { index: true, follow: true },
+}
 
 const BASE_FEATURES = [
   '300 кредитов в месяц',

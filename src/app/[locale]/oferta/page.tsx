@@ -1,6 +1,13 @@
+import type { Metadata } from 'next'
 import { setRequestLocale } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { ArrowLeft } from 'lucide-react'
+
+export const metadata: Metadata = {
+  title: 'Публичная оферта — Хукси',
+  description: 'Публичная оферта ООО «ЛАЙФ МЕДИА» на оказание услуг сервиса Хукси.',
+  robots: { index: false, follow: false },
+}
 
 export default async function OfertaPage({
   params,
