@@ -25,6 +25,7 @@ interface AuthContextType {
   credits: number
   demoUsage: DemoUsage | null
   hasActiveSubscription: boolean
+  isAdmin: boolean
   gateReason: GateReason | null
   openGate: (reason: GateReason) => void
   closeGate: () => void
@@ -39,6 +40,7 @@ const AuthContext = createContext<AuthContextType>({
   credits: 0,
   demoUsage: null,
   hasActiveSubscription: false,
+  isAdmin: false,
   gateReason: null,
   openGate: () => {},
   closeGate: () => {},
@@ -53,6 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [credits, setCredits] = useState(0)
   const [demoUsage, setDemoUsage] = useState<DemoUsage | null>(null)
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
   const [gateReason, setGateReason] = useState<GateReason | null>(null)
 
   const supabase = createClient()
@@ -60,7 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const fetchUserData = useCallback(
     async (userId: string) => {
       try {
-        const [creditsRes, demoRes, subRes] = await Promise.all([
+        const [creditsRes, demoRes, subRes, profileRes] = await Promise.all([
           supabase.from('user_credits').select('balance').eq('user_id', userId).maybeSingle(),
           supabase.from('demo_usage').select('*').eq('user_id', userId).maybeSingle(),
           supabase
@@ -69,10 +72,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             .eq('user_id', userId)
             .eq('status', 'active')
             .maybeSingle(),
+          supabase.from('profiles').select('is_admin').eq('id', userId).maybeSingle(),
         ])
         setCredits(creditsRes.data?.balance ?? 0)
         setDemoUsage(demoRes.data ?? null)
         setHasActiveSubscription(!!subRes.data)
+        setIsAdmin(!!profileRes.data?.is_admin)
       } catch {
         // Non-critical — leave defaults
       }
@@ -103,6 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setCredits(0)
         setDemoUsage(null)
         setHasActiveSubscription(false)
+        setIsAdmin(false)
       }
     })
 
@@ -138,6 +144,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         credits,
         demoUsage,
         hasActiveSubscription,
+        isAdmin,
         gateReason,
         openGate,
         closeGate,

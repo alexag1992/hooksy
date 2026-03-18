@@ -5,11 +5,12 @@ import { DEMO_LIMITS } from '@/lib/credits'
 import { AlertCircle } from 'lucide-react'
 
 export function DemoBanner() {
-  const { user, loading, demoUsage, hasActiveSubscription, openGate } = useAuth()
+  const { user, loading, demoUsage, hasActiveSubscription, isAdmin, openGate } = useAuth()
 
   if (
     loading ||
     !user ||
+    isAdmin ||
     hasActiveSubscription ||
     !demoUsage ||
     demoUsage.hooks_used < DEMO_LIMITS.hooks

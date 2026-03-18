@@ -5,7 +5,7 @@ import { LogOut, Coins } from 'lucide-react'
 import { DEMO_LIMITS } from '@/lib/credits'
 
 export function AuthButton() {
-  const { user, loading, credits, demoUsage, hasActiveSubscription, signInWithGoogle, signOut, openGate } =
+  const { user, loading, credits, demoUsage, hasActiveSubscription, isAdmin, signInWithGoogle, signOut, openGate } =
     useAuth()
 
   if (loading) {
@@ -29,7 +29,11 @@ export function AuthButton() {
   return (
     <div className="flex items-center gap-2">
       {/* Credits / demo badge */}
-      {hasActiveSubscription ? (
+      {isAdmin ? (
+        <div className="rounded-lg px-3 py-1.5 text-xs font-medium bg-[#1A1A22] text-[#8B5CF6] border border-[#8B5CF6]/30">
+          Admin
+        </div>
+      ) : hasActiveSubscription ? (
         <div className="flex items-center gap-1 rounded-lg bg-[#1E1E22] px-3 py-1.5 text-sm text-[#F5F5F5]">
           <Coins size={14} className="text-[#00D4FF]" />
           <span>{credits} кр</span>

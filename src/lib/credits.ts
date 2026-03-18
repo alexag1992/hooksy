@@ -25,6 +25,17 @@ type CheckResult =
 export async function checkAndConsume(userId: string, action: CreditAction): Promise<CheckResult> {
   const admin = createAdminClient()
 
+  // Admins bypass all limits
+  const { data: profile } = await admin
+    .from('profiles')
+    .select('is_admin')
+    .eq('id', userId)
+    .maybeSingle()
+
+  if (profile?.is_admin) {
+    return { allowed: true }
+  }
+
   // Check active subscription
   const { data: sub } = await admin
     .from('subscriptions')
