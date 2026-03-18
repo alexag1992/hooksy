@@ -1,7 +1,12 @@
 {
   "header": {
     "title": "Hooksy",
-    "subtitle": "Viral Hook Generator"
+    "subtitle": "Viral Hook Generator",
+    "pricing": "Pricing"
+  },
+  "footer": {
+    "pricing": "Pricing",
+    "oferta": "Public Offer"
   },
   "hero": {
     "title": "Viral Hook Generator",

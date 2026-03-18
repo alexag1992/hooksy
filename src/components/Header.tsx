@@ -22,7 +22,7 @@ export function Header() {
         </button>
         <div className="flex items-center gap-3">
           <Link href="/pricing" className="text-sm text-[#8A8A8E] hover:text-[#F5F5F5] transition-colors hidden sm:block">
-            Тарифы
+            {t('pricing')}
           </Link>
           <LanguageSwitcher />
           <AuthButton />

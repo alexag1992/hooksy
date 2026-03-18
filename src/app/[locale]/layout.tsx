@@ -1,5 +1,5 @@
 import { NextIntlClientProvider } from 'next-intl'
-import { getMessages, setRequestLocale } from 'next-intl/server'
+import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { routing } from '@/i18n/routing'
 import { Header } from '@/components/Header'
@@ -26,7 +26,7 @@ export default async function LocaleLayout({
 
   setRequestLocale(locale)
 
-  const messages = await getMessages()
+  const [messages, tf] = await Promise.all([getMessages(), getTranslations('footer')])
 
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
@@ -39,8 +39,8 @@ export default async function LocaleLayout({
           <footer className="border-t border-[#2A2A2E] py-8">
             <div className="mx-auto max-w-4xl px-4 space-y-3 text-center text-sm text-[#5A5A5E]">
               <div className="flex flex-wrap justify-center gap-4">
-                <a href="/pricing" className="hover:text-[#C0C0C4] transition-colors">Тарифы</a>
-                <a href="/oferta" className="hover:text-[#C0C0C4] transition-colors">Публичная оферта</a>
+                <a href="/pricing" className="hover:text-[#C0C0C4] transition-colors">{tf('pricing')}</a>
+                <a href="/oferta" className="hover:text-[#C0C0C4] transition-colors">{tf('oferta')}</a>
                 <a href="mailto:lifemediasmm@gmail.com" className="hover:text-[#C0C0C4] transition-colors">lifemediasmm@gmail.com</a>
               </div>
               <p>ООО «ЛАЙФ МЕДИА» · ИНН 6950213657 · ОГРН 1176952020145</p>
