@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl'
 import { Anchor } from 'lucide-react'
-import { useRouter } from '@/i18n/navigation'
+import { useRouter, Link } from '@/i18n/navigation'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { AuthButton } from './AuthButton'
 
@@ -21,6 +21,9 @@ export function Header() {
           <span className="text-lg font-bold text-[#F5F5F5]">{t('title')}</span>
         </button>
         <div className="flex items-center gap-3">
+          <Link href="/pricing" className="text-sm text-[#8A8A8E] hover:text-[#F5F5F5] transition-colors hidden sm:block">
+            Тарифы
+          </Link>
           <LanguageSwitcher />
           <AuthButton />
         </div>

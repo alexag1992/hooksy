@@ -3,9 +3,10 @@
 import { useAuth } from '@/context/AuthContext'
 import { LogOut, Coins } from 'lucide-react'
 import { DEMO_LIMITS } from '@/lib/credits'
+import { Link } from '@/i18n/navigation'
 
 export function AuthButton() {
-  const { user, loading, credits, demoUsage, hasActiveSubscription, isAdmin, signInWithGoogle, signOut, openGate } =
+  const { user, loading, credits, demoUsage, hasActiveSubscription, isAdmin, signOut, openGate } =
     useAuth()
 
   if (loading) {
@@ -52,19 +53,21 @@ export function AuthButton() {
         </div>
       )}
 
-      {/* Avatar */}
-      {user.user_metadata?.avatar_url ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={user.user_metadata.avatar_url}
-          alt="avatar"
-          className="h-8 w-8 rounded-full border border-[#2A2A2E]"
-        />
-      ) : (
-        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#1E1E22] text-sm font-bold text-[#00D4FF] border border-[#2A2A2E]">
-          {user.email?.[0]?.toUpperCase() ?? '?'}
-        </div>
-      )}
+      {/* Avatar → profile */}
+      <Link href="/profile" title="Профиль">
+        {user.user_metadata?.avatar_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={user.user_metadata.avatar_url}
+            alt="avatar"
+            className="h-8 w-8 rounded-full border border-[#2A2A2E] hover:border-[#00D4FF]/50 transition-colors"
+          />
+        ) : (
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#1E1E22] text-sm font-bold text-[#00D4FF] border border-[#2A2A2E] hover:border-[#00D4FF]/50 transition-colors">
+            {user.email?.[0]?.toUpperCase() ?? '?'}
+          </div>
+        )}
+      </Link>
 
       {/* Sign out */}
       <button

@@ -39,6 +39,7 @@ export default async function LocaleLayout({
           <footer className="border-t border-[#2A2A2E] py-8">
             <div className="mx-auto max-w-4xl px-4 space-y-3 text-center text-sm text-[#5A5A5E]">
               <div className="flex flex-wrap justify-center gap-4">
+                <a href="/pricing" className="hover:text-[#C0C0C4] transition-colors">Тарифы</a>
                 <a href="/oferta" className="hover:text-[#C0C0C4] transition-colors">Публичная оферта</a>
                 <a href="mailto:lifemediasmm@gmail.com" className="hover:text-[#C0C0C4] transition-colors">lifemediasmm@gmail.com</a>
               </div>
