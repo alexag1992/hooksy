@@ -4,6 +4,7 @@ import { useState, useCallback, useRef, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { Upload, X, Loader2, Download, ZoomIn, Image as ImageIcon } from 'lucide-react'
 import { useGenerateImage } from '@/hooks/useGenerateImage'
+import { useAuth } from '@/context/AuthContext'
 import type { Locale, GeneratedImage } from '@/types'
 
 // Aspect ratio config: [value, label, widthRatio, heightRatio]
@@ -130,6 +131,7 @@ interface CreativeGeneratorProps {
 export function CreativeGenerator({ hook, adText }: CreativeGeneratorProps) {
   const t = useTranslations('creative')
   const { images, generate } = useGenerateImage()
+  const { hasActiveSubscription } = useAuth()
 
   const [references, setReferences] = useState<string[]>([])
   const [prompt, setPrompt] = useState('')
@@ -359,6 +361,18 @@ export function CreativeGenerator({ hook, adText }: CreativeGeneratorProps) {
             <ImageIcon className="h-4 w-4" />
             {t('generate')}
           </button>
+
+          {hasGenerated && !hasActiveSubscription && (
+            <p className="text-xs text-[#5A5A5E] text-center leading-relaxed">
+              В демо-режиме — 1 креатив на цепочку.{' '}
+              <button
+                onClick={() => window.location.reload()}
+                className="text-[#00D4FF] hover:underline"
+              >
+                Начать новую цепочку
+              </button>
+            </p>
+          )}
         </div>
 
         {/* Right: results */}
