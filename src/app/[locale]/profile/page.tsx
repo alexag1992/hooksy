@@ -3,8 +3,24 @@
 import { useAuth } from '@/context/AuthContext'
 import { DEMO_LIMITS, CREDIT_COSTS } from '@/lib/credits'
 import { Link, useRouter } from '@/i18n/navigation'
-import { Coins, Zap, User, LogOut, ShieldCheck } from 'lucide-react'
+import { Coins, Zap, User, LogOut, ShieldCheck, TrendingUp, TrendingDown } from 'lucide-react'
 import { useLocale } from 'next-intl'
+import { useEffect, useState } from 'react'
+
+interface TxRow {
+  id: string
+  amount: number
+  action: string
+  created_at: string
+}
+
+const ACTION_LABEL: Record<string, { ru: string; en: string }> = {
+  hooks:        { ru: 'Генерация хуков',         en: 'Hook generation' },
+  ad_text:      { ru: 'Рекламный текст',          en: 'Ad text' },
+  image:        { ru: 'Генерация изображения',    en: 'Image generation' },
+  purchase:     { ru: 'Пополнение (оплата)',       en: 'Top-up (purchase)' },
+  admin_grant:  { ru: 'Начисление администратором', en: 'Admin grant' },
+}
 
 const i18n = {
   ru: {
@@ -27,6 +43,9 @@ const i18n = {
     costAds: 'Рекламный текст',
     costImage: 'Изображение-креатив',
     costUnit: (u: string) => u === 'hooks' ? 'кр/генерация' : u === 'ad_text' ? 'кр/текст' : 'кр/изображение',
+    txTitle: 'История транзакций',
+    txEmpty: 'Транзакций пока нет',
+    txLoading: 'Загрузка...',
   },
   en: {
     title: 'Profile',
@@ -48,6 +67,9 @@ const i18n = {
     costAds: 'Ad text',
     costImage: 'Creative image',
     costUnit: (u: string) => u === 'hooks' ? 'cr/generation' : u === 'ad_text' ? 'cr/text' : 'cr/image',
+    txTitle: 'Transaction history',
+    txEmpty: 'No transactions yet',
+    txLoading: 'Loading...',
   },
 }
 
@@ -64,8 +86,20 @@ function StatCard({ label, value, sub }: { label: string; value: string | number
 export default function ProfilePage() {
   const { user, loading, credits, demoUsage, hasActiveSubscription, isAdmin, signOut } = useAuth()
   const router = useRouter()
-  const locale = useLocale()
+  const locale = useLocale() as 'ru' | 'en'
   const c = locale === 'ru' ? i18n.ru : i18n.en
+
+  const [transactions, setTransactions] = useState<TxRow[]>([])
+  const [txLoading, setTxLoading] = useState(false)
+
+  useEffect(() => {
+    if (!user) return
+    setTxLoading(true)
+    fetch('/api/user/transactions')
+      .then((r) => r.json())
+      .then((data) => setTransactions(Array.isArray(data) ? data : []))
+      .finally(() => setTxLoading(false))
+  }, [user])
 
   if (loading) {
     return (
@@ -197,7 +231,7 @@ export default function ProfilePage() {
       )}
 
       {/* Credit costs reference */}
-      <div className="rounded-xl border border-[#2A2A2E] bg-[#141416] p-4">
+      <div className="rounded-xl border border-[#2A2A2E] bg-[#141416] p-4 mb-6">
         <p className="text-xs text-[#5A5A5E] mb-3 uppercase tracking-wide">{c.costTitle}</p>
         <div className="flex flex-col gap-2">
           {[
@@ -213,6 +247,43 @@ export default function ProfilePage() {
             </div>
           ))}
         </div>
+      </div>
+
+      {/* Transaction history */}
+      <div className="rounded-xl border border-[#2A2A2E] bg-[#141416] overflow-hidden">
+        <div className="px-4 py-3 border-b border-[#2A2A2E]">
+          <p className="text-xs text-[#5A5A5E] uppercase tracking-wide">{c.txTitle}</p>
+        </div>
+        {txLoading ? (
+          <p className="px-4 py-6 text-xs text-[#5A5A5E] text-center">{c.txLoading}</p>
+        ) : transactions.length === 0 ? (
+          <p className="px-4 py-6 text-xs text-[#5A5A5E] text-center">{c.txEmpty}</p>
+        ) : (
+          <ul className="divide-y divide-[#1E1E22]">
+            {transactions.map((tx) => {
+              const isIncome = tx.amount > 0
+              const label = ACTION_LABEL[tx.action]?.[locale] ?? tx.action
+              const date = new Date(tx.created_at).toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'short' })
+              return (
+                <li key={tx.id} className="flex items-center justify-between px-4 py-3 gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
+                    {isIncome
+                      ? <TrendingUp className="h-4 w-4 text-[#00D4FF] shrink-0" />
+                      : <TrendingDown className="h-4 w-4 text-[#5A5A5E] shrink-0" />
+                    }
+                    <div className="min-w-0">
+                      <p className="text-sm text-[#F5F5F5] truncate">{label}</p>
+                      <p className="text-xs text-[#5A5A5E]">{date}</p>
+                    </div>
+                  </div>
+                  <span className={`text-sm font-semibold tabular-nums shrink-0 ${isIncome ? 'text-[#00D4FF]' : 'text-[#8A8A8E]'}`}>
+                    {isIncome ? '+' : ''}{tx.amount}
+                  </span>
+                </li>
+              )
+            })}
+          </ul>
+        )}
       </div>
     </div>
   )
