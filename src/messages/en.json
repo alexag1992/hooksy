@@ -72,6 +72,5 @@
     "errorApi": "PolzaAI API connection error",
     "errorGeneration": "Generation error: service temporarily unavailable",
     "errorPolicy": "Error: request violates image generation policy"
-  },
-  "footer": "© 2025 Hooksy"
+  }
 }
