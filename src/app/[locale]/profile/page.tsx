@@ -2,9 +2,54 @@
 
 import { useAuth } from '@/context/AuthContext'
 import { DEMO_LIMITS, CREDIT_COSTS } from '@/lib/credits'
-import { Link } from '@/i18n/navigation'
+import { Link, useRouter } from '@/i18n/navigation'
 import { Coins, Zap, User, LogOut, ShieldCheck } from 'lucide-react'
-import { useRouter } from '@/i18n/navigation'
+import { useLocale } from 'next-intl'
+
+const i18n = {
+  ru: {
+    title: 'Профиль',
+    signOut: 'Выйти',
+    admin: 'Администратор',
+    adminSub: 'Все лимиты сняты',
+    proPlan: 'Хукси Pro активна',
+    proSub: '990 ₽/мес',
+    demoMode: 'Демо-режим',
+    demoSub: 'Бесплатный доступ с ограничениями',
+    upgrade: 'Upgrade',
+    usedInDemo: 'Использовано в демо',
+    hooks: 'Хуки',
+    ads: 'Объявления',
+    creatives: 'Креативы',
+    left: (n: number) => `осталось ${n}`,
+    costTitle: 'Стоимость генераций',
+    costHooks: 'Хуки',
+    costAds: 'Рекламный текст',
+    costImage: 'Изображение-креатив',
+    costUnit: (u: string) => u === 'hooks' ? 'кр/генерация' : u === 'ad_text' ? 'кр/текст' : 'кр/изображение',
+  },
+  en: {
+    title: 'Profile',
+    signOut: 'Sign out',
+    admin: 'Administrator',
+    adminSub: 'All limits removed',
+    proPlan: 'Hooksy Pro active',
+    proSub: '990 ₽/mo',
+    demoMode: 'Demo mode',
+    demoSub: 'Free access with limitations',
+    upgrade: 'Upgrade',
+    usedInDemo: 'Demo usage',
+    hooks: 'Hooks',
+    ads: 'Ad texts',
+    creatives: 'Creatives',
+    left: (n: number) => `${n} left`,
+    costTitle: 'Generation costs',
+    costHooks: 'Hooks',
+    costAds: 'Ad text',
+    costImage: 'Creative image',
+    costUnit: (u: string) => u === 'hooks' ? 'cr/generation' : u === 'ad_text' ? 'cr/text' : 'cr/image',
+  },
+}
 
 function StatCard({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
   return (
@@ -19,6 +64,8 @@ function StatCard({ label, value, sub }: { label: string; value: string | number
 export default function ProfilePage() {
   const { user, loading, credits, demoUsage, hasActiveSubscription, isAdmin, signOut } = useAuth()
   const router = useRouter()
+  const locale = useLocale()
+  const c = locale === 'ru' ? i18n.ru : i18n.en
 
   if (loading) {
     return (
@@ -38,12 +85,12 @@ export default function ProfilePage() {
   }
 
   const avatar = user.user_metadata?.avatar_url
-  const name = user.user_metadata?.full_name ?? user.email ?? 'Пользователь'
+  const name = user.user_metadata?.full_name ?? user.email ?? 'User'
   const email = user.email ?? ''
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-14">
-      <h1 className="text-2xl font-bold text-[#F5F5F5] mb-8">Профиль</h1>
+      <h1 className="text-2xl font-bold text-[#F5F5F5] mb-8">{c.title}</h1>
 
       {/* User card */}
       <div className="rounded-2xl border border-[#2A2A2E] bg-[#141416] p-5 flex items-center gap-4 mb-6">
@@ -71,7 +118,7 @@ export default function ProfilePage() {
           className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs text-[#5A5A5E] border border-[#2A2A2E] hover:text-[#F5F5F5] hover:border-[#3A3A3E] transition-all shrink-0"
         >
           <LogOut className="h-3.5 w-3.5" />
-          Выйти
+          {c.signOut}
         </button>
       </div>
 
@@ -80,8 +127,8 @@ export default function ProfilePage() {
         <div className="rounded-xl border border-[#8B5CF6]/30 bg-[#8B5CF6]/5 p-4 mb-6 flex items-center gap-3">
           <ShieldCheck className="h-5 w-5 text-[#8B5CF6] shrink-0" />
           <div>
-            <p className="text-sm font-semibold text-[#8B5CF6]">Администратор</p>
-            <p className="text-xs text-[#5A5A5E]">Все лимиты сняты</p>
+            <p className="text-sm font-semibold text-[#8B5CF6]">{c.admin}</p>
+            <p className="text-xs text-[#5A5A5E]">{c.adminSub}</p>
           </div>
         </div>
       ) : hasActiveSubscription ? (
@@ -89,14 +136,14 @@ export default function ProfilePage() {
           <div className="flex items-center gap-3">
             <Zap className="h-5 w-5 text-[#00D4FF] shrink-0" />
             <div>
-              <p className="text-sm font-semibold text-[#00D4FF]">Хукси Pro активна</p>
-              <p className="text-xs text-[#5A5A5E]">990 ₽/мес</p>
+              <p className="text-sm font-semibold text-[#00D4FF]">{c.proPlan}</p>
+              <p className="text-xs text-[#5A5A5E]">{c.proSub}</p>
             </div>
           </div>
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#141416] border border-[#2A2A2E]">
             <Coins className="h-4 w-4 text-[#00D4FF]" />
             <span className="text-sm font-semibold text-[#F5F5F5]">{credits}</span>
-            <span className="text-xs text-[#5A5A5E]">кр</span>
+            <span className="text-xs text-[#5A5A5E]">cr</span>
           </div>
         </div>
       ) : (
@@ -104,8 +151,8 @@ export default function ProfilePage() {
           <div className="flex items-center gap-3">
             <User className="h-5 w-5 text-[#8A8A8E] shrink-0" />
             <div>
-              <p className="text-sm font-semibold text-[#F5F5F5]">Демо-режим</p>
-              <p className="text-xs text-[#5A5A5E]">Бесплатный доступ с ограничениями</p>
+              <p className="text-sm font-semibold text-[#F5F5F5]">{c.demoMode}</p>
+              <p className="text-xs text-[#5A5A5E]">{c.demoSub}</p>
             </div>
           </div>
           <Link
@@ -113,7 +160,7 @@ export default function ProfilePage() {
             className="shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium text-white transition-opacity hover:opacity-90"
             style={{ background: 'linear-gradient(135deg, #00D4FF, #8B5CF6)' }}
           >
-            Upgrade
+            {c.upgrade}
           </Link>
         </div>
       )}
@@ -121,22 +168,22 @@ export default function ProfilePage() {
       {/* Stats */}
       {!hasActiveSubscription && !isAdmin && demoUsage && (
         <div className="mb-6">
-          <p className="text-xs text-[#5A5A5E] mb-3 uppercase tracking-wide">Использовано в демо</p>
+          <p className="text-xs text-[#5A5A5E] mb-3 uppercase tracking-wide">{c.usedInDemo}</p>
           <div className="grid grid-cols-3 gap-3">
             <StatCard
-              label="Хуки"
+              label={c.hooks}
               value={`${demoUsage.hooks_used}/${DEMO_LIMITS.hooks}`}
-              sub={`осталось ${DEMO_LIMITS.hooks - demoUsage.hooks_used}`}
+              sub={c.left(DEMO_LIMITS.hooks - demoUsage.hooks_used)}
             />
             <StatCard
-              label="Объявления"
+              label={c.ads}
               value={`${demoUsage.ads_used}/${DEMO_LIMITS.ads}`}
-              sub={`осталось ${DEMO_LIMITS.ads - demoUsage.ads_used}`}
+              sub={c.left(DEMO_LIMITS.ads - demoUsage.ads_used)}
             />
             <StatCard
-              label="Креативы"
+              label={c.creatives}
               value={`${demoUsage.images_used}/${DEMO_LIMITS.images}`}
-              sub={`осталось ${DEMO_LIMITS.images - demoUsage.images_used}`}
+              sub={c.left(DEMO_LIMITS.images - demoUsage.images_used)}
             />
           </div>
         </div>
@@ -144,12 +191,12 @@ export default function ProfilePage() {
 
       {/* Credit costs reference */}
       <div className="rounded-xl border border-[#2A2A2E] bg-[#141416] p-4">
-        <p className="text-xs text-[#5A5A5E] mb-3 uppercase tracking-wide">Стоимость генераций</p>
+        <p className="text-xs text-[#5A5A5E] mb-3 uppercase tracking-wide">{c.costTitle}</p>
         <div className="flex flex-col gap-2">
           {[
-            { label: 'Хуки', cost: CREDIT_COSTS.hooks, unit: 'кр/генерация' },
-            { label: 'Рекламный текст', cost: CREDIT_COSTS.ad_text, unit: 'кр/текст' },
-            { label: 'Изображение-креатив', cost: CREDIT_COSTS.image, unit: 'кр/изображение' },
+            { label: c.costHooks, cost: CREDIT_COSTS.hooks, unit: c.costUnit('hooks') },
+            { label: c.costAds, cost: CREDIT_COSTS.ad_text, unit: c.costUnit('ad_text') },
+            { label: c.costImage, cost: CREDIT_COSTS.image, unit: c.costUnit('image') },
           ].map(({ label, cost, unit }) => (
             <div key={label} className="flex items-center justify-between text-sm">
               <span className="text-[#8A8A8E]">{label}</span>
