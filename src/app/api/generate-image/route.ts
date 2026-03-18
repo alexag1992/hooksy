@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { checkRateLimit } from '@/lib/rateLimit'
+import { getUser } from '@/lib/supabase/getUser'
+import { checkAndConsume } from '@/lib/credits'
 import type { ImageGenerateRequest, ImageGenerateResponse } from '@/types'
 
 const POLZA_API_URL = 'https://polza.ai/api/v1/media'
@@ -33,6 +35,17 @@ function buildPrompt(params: ImageGenerateRequest): string {
 }
 
 export async function POST(req: NextRequest) {
+  // Auth check
+  const user = await getUser()
+  if (!user) {
+    return NextResponse.json({ error: 'not_authenticated' } as ImageGenerateResponse, { status: 401 })
+  }
+
+  const creditCheck = await checkAndConsume(user.id, 'image')
+  if (!creditCheck.allowed) {
+    return NextResponse.json({ error: creditCheck.reason } as ImageGenerateResponse, { status: 403 })
+  }
+
   const ip = getClientIp(req)
   const rateLimitResult = checkRateLimit(ip)
 

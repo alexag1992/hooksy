@@ -1,6 +1,7 @@
 import { useTranslations } from 'next-intl'
 import { Anchor } from 'lucide-react'
 import { LanguageSwitcher } from './LanguageSwitcher'
+import { AuthButton } from './AuthButton'
 
 export function Header() {
   const t = useTranslations('header')
@@ -12,7 +13,10 @@ export function Header() {
           <Anchor className="h-5 w-5 text-[#00D4FF]" />
           <span className="text-lg font-bold text-[#F5F5F5]">{t('title')}</span>
         </div>
-        <LanguageSwitcher />
+        <div className="flex items-center gap-3">
+          <LanguageSwitcher />
+          <AuthButton />
+        </div>
       </div>
     </header>
   )

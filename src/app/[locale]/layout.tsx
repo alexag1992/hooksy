@@ -3,6 +3,8 @@ import { getMessages, setRequestLocale } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { routing } from '@/i18n/routing'
 import { Header } from '@/components/Header'
+import { AuthProvider } from '@/context/AuthContext'
+import { GateModal } from '@/components/GateModal'
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }))
@@ -27,17 +29,20 @@ export default async function LocaleLayout({
 
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
-      <div className="min-h-screen flex flex-col bg-[#0A0A0B]">
-        <Header />
-        <main className="flex-1">
-          {children}
-        </main>
-        <footer className="border-t border-[#2A2A2E] py-6">
-          <div className="mx-auto max-w-4xl px-4 text-center text-sm text-[#5A5A5E]">
-            © 2025 Хукси
-          </div>
-        </footer>
-      </div>
+      <AuthProvider>
+        <div className="min-h-screen flex flex-col bg-[#0A0A0B]">
+          <Header />
+          <main className="flex-1">
+            {children}
+          </main>
+          <footer className="border-t border-[#2A2A2E] py-6">
+            <div className="mx-auto max-w-4xl px-4 text-center text-sm text-[#5A5A5E]">
+              © 2025 Хукси
+            </div>
+          </footer>
+        </div>
+        <GateModal />
+      </AuthProvider>
     </NextIntlClientProvider>
   )
 }

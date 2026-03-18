@@ -4,6 +4,8 @@ import { systemPrompt, buildUserPrompt } from '@/lib/prompts'
 import { checkRateLimit } from '@/lib/rateLimit'
 import { getCuratedTemplatesForAI, fillTemplate, getRandomTemplates } from '@/lib/hookTemplates'
 import { OPENAI_MODEL, HOOKS_COUNT, MAX_TOPIC_LENGTH } from '@/config/constants'
+import { getUser } from '@/lib/supabase/getUser'
+import { checkAndConsume } from '@/lib/credits'
 import type { GenerateRequest, GenerateResponse, Platform, Locale } from '@/types'
 
 const VALID_PLATFORMS: Platform[] = ['youtube', 'tiktok', 'instagram', 'telegram', 'vk']
@@ -23,6 +25,17 @@ function getFallbackHooks(topic: string, locale: Locale): string[] {
 }
 
 export async function POST(req: NextRequest) {
+  // Auth check
+  const user = await getUser()
+  if (!user) {
+    return NextResponse.json({ error: 'not_authenticated' }, { status: 401 })
+  }
+
+  const creditCheck = await checkAndConsume(user.id, 'hooks')
+  if (!creditCheck.allowed) {
+    return NextResponse.json({ error: creditCheck.reason }, { status: 403 })
+  }
+
   // Rate limiting
   const ip = getClientIp(req)
   const rateLimitResult = checkRateLimit(ip)

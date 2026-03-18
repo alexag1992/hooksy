@@ -3,6 +3,8 @@ import { openai } from '@/lib/openai'
 import { buildAdPrompt, buildAdVariantsPrompt } from '@/lib/prompts'
 import { checkRateLimit } from '@/lib/rateLimit'
 import { OPENAI_MODEL } from '@/config/constants'
+import { getUser } from '@/lib/supabase/getUser'
+import { checkAndConsume } from '@/lib/credits'
 import type { AdGenerateRequest, AdGenerateResponse, Platform, Locale } from '@/types'
 
 const VALID_PLATFORMS: Platform[] = ['youtube', 'tiktok', 'instagram', 'telegram', 'vk']
@@ -17,6 +19,17 @@ function getClientIp(req: NextRequest): string {
 }
 
 export async function POST(req: NextRequest) {
+  // Auth check
+  const user = await getUser()
+  if (!user) {
+    return NextResponse.json({ error: 'not_authenticated' }, { status: 401 })
+  }
+
+  const creditCheck = await checkAndConsume(user.id, 'ad_text')
+  if (!creditCheck.allowed) {
+    return NextResponse.json({ error: creditCheck.reason }, { status: 403 })
+  }
+
   const ip = getClientIp(req)
   const rateLimitResult = checkRateLimit(ip)
 
