@@ -11,6 +11,7 @@ export function GateModal() {
   const isAuth = gateReason === 'not_authenticated'
   const isDemo = gateReason === 'demo_exhausted'
   const isDemoImage = gateReason === 'demo_image_exhausted'
+  const isUpgrade = gateReason === 'upgrade'
 
   return (
     <div
@@ -76,17 +77,21 @@ export function GateModal() {
           </>
         )}
 
-        {(isDemo || isDemoImage || gateReason === 'insufficient_credits') && (
+        {(isUpgrade || isDemo || isDemoImage || gateReason === 'insufficient_credits') && (
           <>
             <h2 className="mb-2 text-center text-xl font-bold text-[#F5F5F5]">
-              {isDemoImage
+              {isUpgrade
+                ? 'Хукси Pro'
+                : isDemoImage
                 ? 'Лимит креативов в демо'
                 : isDemo
                 ? 'Демо-режим исчерпан'
                 : 'Недостаточно кредитов'}
             </h2>
             <p className="mb-6 text-center text-sm text-[#8A8A8E]">
-              {isDemoImage
+              {isUpgrade
+                ? 'Снимите ограничения демо-режима — генерируйте хуки, тексты и креативы без лимитов.'
+                : isDemoImage
                 ? 'В демо-режиме доступен 1 креатив на цепочку (всего 3). Оформите подписку, чтобы генерировать неограниченно.'
                 : isDemo
                 ? 'Вы использовали все 3 бесплатные цепочки. Оформите подписку для продолжения.'

@@ -17,7 +17,7 @@ export interface DemoUsage {
   images_used: number
 }
 
-export type GateReason = 'not_authenticated' | 'demo_exhausted' | 'demo_image_exhausted' | 'insufficient_credits'
+export type GateReason = 'not_authenticated' | 'demo_exhausted' | 'demo_image_exhausted' | 'insufficient_credits' | 'upgrade'
 
 interface AuthContextType {
   user: User | null

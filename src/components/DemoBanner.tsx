@@ -48,7 +48,7 @@ export function DemoBanner() {
           </span>
         </div>
         <button
-          onClick={() => openGate('demo_exhausted')}
+          onClick={() => openGate(allExhausted ? 'demo_exhausted' : 'upgrade')}
           className="text-xs text-[#8B5CF6] hover:text-[#A78BFA] transition-colors"
         >
           Получить полный доступ →
