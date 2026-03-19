@@ -7,12 +7,23 @@ export async function GET(request: NextRequest) {
   const code = searchParams.get('code')
   const locale = request.nextUrl.pathname.split('/')[1] ?? 'ru'
 
+  console.log('[locale/auth/callback] hit, locale:', locale, 'code:', !!code)
+  console.log('[locale/auth/callback] supabaseUrl:', process.env.NEXT_PUBLIC_SUPABASE_URL)
+
   if (code) {
     const redirectResponse = NextResponse.redirect(`${origin}/${locale}`)
 
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+    if (!supabaseUrl || !supabaseKey) {
+      console.error('[locale/auth/callback] Missing Supabase env vars!')
+      return NextResponse.redirect(`${origin}/${locale}?error=config`)
+    }
+
     const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      supabaseUrl,
+      supabaseKey,
       {
         cookies: {
           getAll() {
@@ -27,8 +38,17 @@ export async function GET(request: NextRequest) {
       }
     )
 
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
-    if (!error) return redirectResponse
+    try {
+      const { error } = await supabase.auth.exchangeCodeForSession(code)
+      if (error) {
+        console.error('[locale/auth/callback] exchange error:', error.message)
+        return NextResponse.redirect(`${origin}/${locale}?error=auth`)
+      }
+      return redirectResponse
+    } catch (e) {
+      console.error('[locale/auth/callback] exception:', e)
+      return NextResponse.redirect(`${origin}/${locale}?error=exception`)
+    }
   }
 
   return NextResponse.redirect(`${origin}/${locale}`)
