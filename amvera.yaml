@@ -8,6 +8,6 @@ build:
   additionalCommands: npm install -g pnpm && pnpm install --frozen-lockfile && pnpm build
 
 run:
-  command: pnpm start
+  command: node_modules/.bin/next start
   containerPort: 3000
   persistenceMount: /data
