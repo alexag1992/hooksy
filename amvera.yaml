@@ -1,12 +1,13 @@
 meta:
-  toolchain: node
-  toolVersion: "20"
+  environment: node
+  toolchain:
+    name: npm
+    version: 20
 
 build:
-  buildCommand: npm install -g pnpm && pnpm install --frozen-lockfile && pnpm build
-  indexLocation: .
+  additionalCommands: npm install -g pnpm && pnpm install --frozen-lockfile && pnpm build
 
 run:
-  runCommand: pnpm start
+  command: pnpm start
   containerPort: 3000
   persistenceMount: /data
