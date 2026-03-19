@@ -1,5 +1,5 @@
 meta:
-  toolchain: nodejs
+  toolchain: node
   toolVersion: "20"
 
 build:
