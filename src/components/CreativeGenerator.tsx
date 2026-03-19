@@ -197,7 +197,8 @@ export function CreativeGenerator({ hook, adText }: CreativeGeneratorProps) {
   }, [generate, hook, adText, prompt, aspectRatio, resolution, useContext, references])
 
   const hasGenerated = images.length > 0
-  const canGenerate = (prompt.trim().length > 0 || useContext) && !hasGenerated
+  const isPaidUser = hasActiveSubscription || isAdmin
+  const canGenerate = (prompt.trim().length > 0 || useContext) && (!hasGenerated || isPaidUser)
   const selectedRatio = ASPECT_RATIOS.find((r) => r.value === aspectRatio) ?? ASPECT_RATIOS[0]
 
   return (
