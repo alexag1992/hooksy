@@ -30,6 +30,7 @@ interface AuthContextType {
   openGate: (reason: GateReason) => void
   closeGate: () => void
   signInWithGoogle: () => void
+  signInWithEmail: (email: string, password: string) => Promise<string | null>
   signOut: () => void
   refreshUserData: () => Promise<void>
 }
@@ -45,6 +46,7 @@ const AuthContext = createContext<AuthContextType>({
   openGate: () => {},
   closeGate: () => {},
   signInWithGoogle: () => {},
+  signInWithEmail: async () => null,
   signOut: () => {},
   refreshUserData: async () => {},
 })
@@ -125,6 +127,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })
   }, [supabase])
 
+  const signInWithEmail = useCallback(async (email: string, password: string): Promise<string | null> => {
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    return error ? error.message : null
+  }, [supabase])
+
   const signOut = useCallback(async () => {
     await supabase.auth.signOut()
   }, [supabase])
@@ -149,6 +156,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         openGate,
         closeGate,
         signInWithGoogle,
+        signInWithEmail,
         signOut,
         refreshUserData,
       }}

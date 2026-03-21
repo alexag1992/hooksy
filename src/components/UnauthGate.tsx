@@ -1,11 +1,26 @@
 'use client'
 
+import { useState } from 'react'
 import { useAuth } from '@/context/AuthContext'
 import { Lock } from 'lucide-react'
 import type { ReactNode } from 'react'
 
 export function UnauthGate({ children }: { children: ReactNode }) {
-  const { user, loading, signInWithGoogle } = useAuth()
+  const { user, loading, signInWithGoogle, signInWithEmail } = useAuth()
+  const [showEmailForm, setShowEmailForm] = useState(false)
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [emailError, setEmailError] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const handleEmailSignIn = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setEmailError('')
+    setIsSubmitting(true)
+    const error = await signInWithEmail(email, password)
+    setIsSubmitting(false)
+    if (error) setEmailError('Неверный email или пароль')
+  }
 
   // While loading or authenticated, render normally
   if (loading || user) return <>{children}</>
@@ -53,6 +68,49 @@ export function UnauthGate({ children }: { children: ReactNode }) {
             </svg>
             Войти через Google
           </button>
+
+          <div className="flex items-center gap-2 my-3">
+            <div className="flex-1 h-px bg-[#2A2A2E]" />
+            <span className="text-xs text-[#5A5A5E]">или</span>
+            <div className="flex-1 h-px bg-[#2A2A2E]" />
+          </div>
+
+          <button
+            onClick={() => setShowEmailForm(v => !v)}
+            className="text-xs text-[#5A5A5E] hover:text-[#8A8A8E] w-full text-center transition-colors"
+          >
+            Войти по email →
+          </button>
+
+          {showEmailForm && (
+            <form onSubmit={handleEmailSignIn} className="flex flex-col gap-2 mt-3">
+              <input
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                required
+                className="bg-[#1A1A1E] border border-[#2A2A2E] rounded-lg px-3 py-2 text-sm text-[#F5F5F5] w-full focus:border-[#00D4FF] outline-none"
+              />
+              <input
+                type="password"
+                placeholder="Пароль"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                required
+                className="bg-[#1A1A1E] border border-[#2A2A2E] rounded-lg px-3 py-2 text-sm text-[#F5F5F5] w-full focus:border-[#00D4FF] outline-none"
+              />
+              {emailError && <p className="text-xs text-red-400">{emailError}</p>}
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full rounded-lg py-2 text-sm font-medium text-white transition disabled:opacity-60"
+                style={{ background: 'linear-gradient(135deg, #00D4FF, #8B5CF6)' }}
+              >
+                {isSubmitting ? 'Входим...' : 'Войти'}
+              </button>
+            </form>
+          )}
         </div>
       </div>
     </div>
