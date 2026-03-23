@@ -5,15 +5,21 @@ const CREDITS_FOR_BASE_PLAN = 200
 
 // POST /api/webhooks/yukassa?secret=<YUKASSA_WEBHOOK_SECRET>
 export async function POST(req: NextRequest) {
+  console.log('[webhook] hit:', req.method, req.url)
+
   // Verify webhook secret
   const { searchParams } = new URL(req.url)
   const secret = searchParams.get('secret')
+  console.log('[webhook] secret match:', secret === process.env.YUKASSA_WEBHOOK_SECRET, 'env set:', !!process.env.YUKASSA_WEBHOOK_SECRET)
+
   if (!secret || secret !== process.env.YUKASSA_WEBHOOK_SECRET) {
+    console.error('[webhook] Forbidden - secret mismatch')
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
   const body = await req.json()
   const { event, object: payment } = body
+  console.log('[webhook] event:', event, 'payment id:', payment?.id)
 
   // Only handle succeeded payments
   if (event !== 'payment.succeeded') {
