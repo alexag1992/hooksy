@@ -1,11 +1,20 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter, usePathname } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
 import { X, Zap, Lock, CreditCard } from 'lucide-react'
 
 export function GateModal() {
   const { gateReason, closeGate, signInWithGoogle, signInWithEmail } = useAuth()
+  const router = useRouter()
+  const pathname = usePathname()
+  const locale = pathname.split('/')[1] ?? 'ru'
+
+  const goToCheckout = () => {
+    closeGate()
+    router.push(`/${locale}/checkout`)
+  }
   const [showEmailForm, setShowEmailForm] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -183,16 +192,13 @@ export function GateModal() {
             </div>
 
             <button
-              disabled
-              className="flex w-full items-center justify-center gap-2 rounded-xl py-3 font-semibold text-white opacity-60 cursor-not-allowed"
+              onClick={goToCheckout}
+              className="flex w-full items-center justify-center gap-2 rounded-xl py-3 font-semibold text-white transition hover:opacity-90"
               style={{ background: 'linear-gradient(135deg, #00D4FF, #8B5CF6)' }}
             >
               <CreditCard size={18} />
-              Оформить подписку — скоро
+              Оформить подписку
             </button>
-            <p className="mt-3 text-center text-xs text-[#5A5A5E]">
-              Приём платежей через ЮKassa — в разработке
-            </p>
           </>
         )}
       </div>
