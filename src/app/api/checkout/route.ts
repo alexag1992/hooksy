@@ -60,6 +60,8 @@ export async function POST(req: NextRequest) {
   const idempotenceKey = `${user.id}-${Date.now()}`
   const returnUrl = `${siteUrl}/success`
 
+  const description = `Хукси База — 1 месяц${discountPercent > 0 ? ` (скидка ${discountPercent}%)` : ''}`
+
   const paymentBody = {
     amount: {
       value: finalPrice.toFixed(2),
@@ -70,7 +72,25 @@ export async function POST(req: NextRequest) {
       return_url: returnUrl,
     },
     capture: true,
-    description: `Хукси База — 1 месяц${discountPercent > 0 ? ` (скидка ${discountPercent}%)` : ''}`,
+    description,
+    receipt: {
+      customer: {
+        email: user.email,
+      },
+      items: [
+        {
+          description,
+          quantity: '1.00',
+          amount: {
+            value: finalPrice.toFixed(2),
+            currency: 'RUB',
+          },
+          vat_code: 1,
+          payment_subject: 'service',
+          payment_mode: 'full_payment',
+        },
+      ],
+    },
     metadata: {
       user_id: user.id,
       plan: 'base',
