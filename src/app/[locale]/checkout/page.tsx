@@ -10,14 +10,14 @@ const BASE_PRICE = 990
 
 const FEATURES = {
   ru: [
-    '200 кредитов сразу после оплаты',
+    '300 кредитов сразу после оплаты',
     'Безлимитная генерация хуков',
     'Генерация рекламных текстов',
     'Генерация изображений-креативов',
     'Доступ на 30 дней',
   ],
   en: [
-    '200 credits immediately after payment',
+    '300 credits immediately after payment',
     'Unlimited hook generation',
     'Ad text generation',
     'Creative image generation',
@@ -40,7 +40,8 @@ const i18n = {
     pay: 'Оплатить',
     paying: 'Переходим к оплате...',
     loginRequired: 'Войдите, чтобы оформить подписку',
-    alreadySub: 'У вас уже есть активная подписка',
+    renewSub: 'У вас уже есть подписка. Оплата продлит её на 30 дней.',
+    renew: 'Продлить подписку',
     included: 'Что входит:',
   },
   en: {
@@ -57,7 +58,8 @@ const i18n = {
     pay: 'Pay now',
     paying: 'Redirecting to payment...',
     loginRequired: 'Sign in to subscribe',
-    alreadySub: 'You already have an active subscription',
+    renewSub: 'You have an active subscription. Payment will extend it by 30 days.',
+    renew: 'Renew subscription',
     included: "What's included:",
   },
 }
@@ -202,34 +204,32 @@ export default function CheckoutPage() {
         </div>
       )}
 
-      {hasActiveSubscription ? (
-        <div className="rounded-xl border border-[#00D4FF]/20 bg-[#00D4FF]/5 p-4 text-sm text-[#00D4FF] text-center">
-          {c.alreadySub}
+      {hasActiveSubscription && (
+        <div className="rounded-xl border border-[#00D4FF]/20 bg-[#00D4FF]/5 p-4 text-sm text-[#00D4FF] text-center mb-4">
+          {c.renewSub}
         </div>
-      ) : (
-        <>
-          {/* Total */}
-          <div className="flex items-center justify-between px-1 mb-4">
-            <span className="text-sm text-[#5A5A5E]">{c.total}</span>
-            <span className="text-lg font-bold text-[#F5F5F5]">{finalPrice} ₽</span>
-          </div>
-
-          {error && <p className="text-xs text-red-400 mb-3">{error}</p>}
-
-          <button
-            onClick={pay}
-            disabled={paying}
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
-            style={{ background: 'linear-gradient(135deg, #00D4FF, #8B5CF6)' }}
-          >
-            {paying ? (
-              <><Loader2 className="h-4 w-4 animate-spin" /> {c.paying}</>
-            ) : (
-              <>{c.pay} — {finalPrice} ₽</>
-            )}
-          </button>
-        </>
       )}
+
+      {/* Total */}
+      <div className="flex items-center justify-between px-1 mb-4">
+        <span className="text-sm text-[#5A5A5E]">{c.total}</span>
+        <span className="text-lg font-bold text-[#F5F5F5]">{finalPrice} ₽</span>
+      </div>
+
+      {error && <p className="text-xs text-red-400 mb-3">{error}</p>}
+
+      <button
+        onClick={pay}
+        disabled={paying}
+        className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
+        style={{ background: 'linear-gradient(135deg, #00D4FF, #8B5CF6)' }}
+      >
+        {paying ? (
+          <><Loader2 className="h-4 w-4 animate-spin" /> {c.paying}</>
+        ) : (
+          <>{hasActiveSubscription ? c.renew : c.pay} — {finalPrice} ₽</>
+        )}
+      </button>
     </div>
   )
 }

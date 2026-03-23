@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
 import { Link } from '@/i18n/navigation'
 import { useLocale } from 'next-intl'
@@ -8,32 +9,36 @@ import { CheckCircle, Coins, Loader2 } from 'lucide-react'
 
 const i18n = {
   ru: {
-    title: 'Оплата прошла успешно!',
-    sub1: 'Подписка Хукси База активирована.',
-    sub2: 'На ваш счёт зачислено',
-    credits: '200 кредитов',
-    hint: 'Кредиты начисляются в течение нескольких секунд. Если баланс ещё не обновился — обновите страницу.',
+    titleSub: 'Оплата прошла успешно!',
+    titleCredits: 'Кредиты зачислены!',
+    sub1Sub: 'Подписка Хукси База активирована на 30 дней.',
+    sub1Credits: '100 дополнительных кредитов добавлено на счёт.',
+    balanceLabel: 'Текущий баланс',
+    hint: 'Кредиты начисляются в течение нескольких секунд. Если баланс ещё не обновился — нажмите «Обновить».',
     cta: 'Начать генерацию',
     refresh: 'Обновить баланс',
   },
   en: {
-    title: 'Payment successful!',
-    sub1: 'Hooksy Base subscription activated.',
-    sub2: 'Your account has been credited with',
-    credits: '200 credits',
-    hint: 'Credits are added within a few seconds. If your balance hasn\'t updated yet — refresh the page.',
+    titleSub: 'Payment successful!',
+    titleCredits: 'Credits added!',
+    sub1Sub: 'Hooksy Base subscription activated for 30 days.',
+    sub1Credits: '100 additional credits have been added to your account.',
+    balanceLabel: 'Current balance',
+    hint: 'Credits are added within a few seconds. If your balance hasn\'t updated yet — click Refresh.',
     cta: 'Start generating',
     refresh: 'Refresh balance',
   },
 }
 
-export default function SuccessPage() {
+function SuccessContent() {
   const { user, loading, credits, refreshUserData } = useAuth()
   const locale = useLocale() as 'ru' | 'en'
   const c = i18n[locale]
+  const searchParams = useSearchParams()
+  const isCredits = searchParams.get('type') === 'credits'
   const [refreshing, setRefreshing] = useState(false)
 
-  // Auto-refresh auth once after 3 seconds to pick up new subscription
+  // Auto-refresh once after 3 seconds to pick up new subscription/credits
   useEffect(() => {
     const timer = setTimeout(() => {
       refreshUserData()
@@ -63,18 +68,22 @@ export default function SuccessPage() {
         </div>
       </div>
 
-      <h1 className="text-2xl font-bold text-[#F5F5F5] mb-3">{c.title}</h1>
-      <p className="text-[#8A8A8E] mb-1">{c.sub1}</p>
+      <h1 className="text-2xl font-bold text-[#F5F5F5] mb-3">
+        {isCredits ? c.titleCredits : c.titleSub}
+      </h1>
       <p className="text-[#8A8A8E] mb-6">
-        {c.sub2} <span className="text-[#00D4FF] font-semibold">{c.credits}</span>.
+        {isCredits ? c.sub1Credits : c.sub1Sub}
       </p>
 
       {/* Credits display */}
       {user && (
-        <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[#2A2A2E] bg-[#141416] mb-6">
-          <Coins className="h-4 w-4 text-[#00D4FF]" />
-          <span className="text-sm text-[#F5F5F5] font-semibold">{credits ?? '...'}</span>
-          <span className="text-xs text-[#5A5A5E]">{locale === 'ru' ? 'кредитов' : 'credits'}</span>
+        <div className="inline-flex flex-col items-center gap-1 px-6 py-3 rounded-xl border border-[#2A2A2E] bg-[#141416] mb-6">
+          <span className="text-xs text-[#5A5A5E]">{c.balanceLabel}</span>
+          <div className="flex items-center gap-2">
+            <Coins className="h-4 w-4 text-[#00D4FF]" />
+            <span className="text-xl font-bold text-[#F5F5F5]">{credits ?? '...'}</span>
+            <span className="text-sm text-[#5A5A5E]">{locale === 'ru' ? 'кредитов' : 'credits'}</span>
+          </div>
         </div>
       )}
 
@@ -98,5 +107,13 @@ export default function SuccessPage() {
         </button>
       </div>
     </div>
+  )
+}
+
+export default function SuccessPage() {
+  return (
+    <Suspense>
+      <SuccessContent />
+    </Suspense>
   )
 }

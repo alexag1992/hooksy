@@ -41,6 +41,7 @@ export default async function LocaleLayout({
               <div className="flex flex-wrap justify-center gap-4">
                 <a href="/pricing" className="hover:text-[#C0C0C4] transition-colors">{tf('pricing')}</a>
                 <a href="/oferta" className="hover:text-[#C0C0C4] transition-colors">{tf('oferta')}</a>
+                <a href="/privacy" className="hover:text-[#C0C0C4] transition-colors">{tf('privacy')}</a>
                 <a href="mailto:lifemediasmm@gmail.com" className="hover:text-[#C0C0C4] transition-colors">lifemediasmm@gmail.com</a>
               </div>
               <p>ООО «ЛАЙФ МЕДИА» · ИНН 6950213657 · ОГРН 1176952020145</p>

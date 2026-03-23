@@ -3,22 +3,39 @@
 import { useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
-import { X, Zap, Lock, CreditCard } from 'lucide-react'
+import { X, Zap, Lock, CreditCard, Loader2 } from 'lucide-react'
 
 export function GateModal() {
-  const { gateReason, closeGate, signInWithGoogle, signInWithEmail } = useAuth()
+  const { gateReason, closeGate, signInWithGoogle, signInWithEmail, signUp, resetPasswordForEmail, hasActiveSubscription } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
   const locale = pathname.split('/')[1] ?? 'ru'
+  const [buyingCredits, setBuyingCredits] = useState(false)
+  const [creditsError, setCreditsError] = useState('')
 
   const goToCheckout = () => {
     closeGate()
     router.push(`/${locale}/checkout`)
   }
-  const [showEmailForm, setShowEmailForm] = useState(false)
+
+  const buyCredits = async () => {
+    setBuyingCredits(true)
+    setCreditsError('')
+    const res = await fetch('/api/checkout-credits', { method: 'POST' })
+    if (!res.ok) {
+      setBuyingCredits(false)
+      setCreditsError('Ошибка. Попробуйте ещё раз.')
+      return
+    }
+    const { confirmation_url } = await res.json()
+    window.location.href = confirmation_url
+  }
+  const [emailMode, setEmailMode] = useState<null | 'signin' | 'signup' | 'forgot'>(null)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [emailError, setEmailError] = useState('')
+  const [emailSuccess, setEmailSuccess] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleEmailSignIn = async (e: React.FormEvent) => {
@@ -27,11 +44,36 @@ export function GateModal() {
     setIsSubmitting(true)
     const error = await signInWithEmail(email, password)
     setIsSubmitting(false)
-    if (error) {
-      setEmailError('Неверный email или пароль')
-    } else {
-      closeGate()
+    if (error) setEmailError('Неверный email или пароль')
+    else closeGate()
+  }
+
+  const handleEmailSignUp = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setEmailError('')
+    if (password !== confirmPassword) {
+      setEmailError('Пароли не совпадают')
+      return
     }
+    if (password.length < 6) {
+      setEmailError('Пароль минимум 6 символов')
+      return
+    }
+    setIsSubmitting(true)
+    const error = await signUp(email, password)
+    setIsSubmitting(false)
+    if (error) setEmailError('Ошибка регистрации. Попробуйте другой email.')
+    else closeGate()
+  }
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setEmailError('')
+    setIsSubmitting(true)
+    const error = await resetPasswordForEmail(email)
+    setIsSubmitting(false)
+    if (error) setEmailError('Не удалось отправить письмо. Проверьте email.')
+    else setEmailSuccess('Ссылка отправлена! Проверьте почту.')
   }
 
   if (!gateReason) return null
@@ -109,39 +151,76 @@ export function GateModal() {
               <div className="flex-1 h-px bg-[#2A2A2E]" />
             </div>
 
-            <button
-              onClick={() => setShowEmailForm(v => !v)}
-              className="text-xs text-[#5A5A5E] hover:text-[#8A8A8E] w-full text-center transition-colors"
-            >
-              Войти по email →
-            </button>
-
-            {showEmailForm && (
-              <form onSubmit={handleEmailSignIn} className="flex flex-col gap-2 mt-3">
-                <input
-                  type="email"
-                  placeholder="Email"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  required
-                  className="bg-[#1A1A1E] border border-[#2A2A2E] rounded-lg px-3 py-2 text-sm text-[#F5F5F5] w-full focus:border-[#00D4FF] outline-none"
-                />
-                <input
-                  type="password"
-                  placeholder="Пароль"
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  required
-                  className="bg-[#1A1A1E] border border-[#2A2A2E] rounded-lg px-3 py-2 text-sm text-[#F5F5F5] w-full focus:border-[#00D4FF] outline-none"
-                />
-                {emailError && <p className="text-xs text-red-400">{emailError}</p>}
+            {/* Mode selector buttons */}
+            {emailMode === null && (
+              <div className="flex gap-2">
                 <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full rounded-lg py-2 text-sm font-medium text-white transition disabled:opacity-60"
-                  style={{ background: 'linear-gradient(135deg, #00D4FF, #8B5CF6)' }}
+                  onClick={() => setEmailMode('signin')}
+                  className="flex-1 text-xs text-[#5A5A5E] hover:text-[#8A8A8E] py-1.5 border border-[#2A2A2E] rounded-lg transition-colors"
                 >
+                  Войти по email
+                </button>
+                <button
+                  onClick={() => setEmailMode('signup')}
+                  className="flex-1 text-xs text-[#5A5A5E] hover:text-[#8A8A8E] py-1.5 border border-[#2A2A2E] rounded-lg transition-colors"
+                >
+                  Зарегистрироваться
+                </button>
+              </div>
+            )}
+
+            {/* Sign In form */}
+            {emailMode === 'signin' && (
+              <form onSubmit={handleEmailSignIn} className="flex flex-col gap-2">
+                <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required className="bg-[#1A1A1E] border border-[#2A2A2E] rounded-lg px-3 py-2 text-sm text-[#F5F5F5] w-full focus:border-[#00D4FF] outline-none" />
+                <input type="password" placeholder="Пароль" value={password} onChange={e => setPassword(e.target.value)} required className="bg-[#1A1A1E] border border-[#2A2A2E] rounded-lg px-3 py-2 text-sm text-[#F5F5F5] w-full focus:border-[#00D4FF] outline-none" />
+                {emailError && <p className="text-xs text-red-400">{emailError}</p>}
+                <button type="submit" disabled={isSubmitting} className="w-full rounded-lg py-2 text-sm font-medium text-white transition disabled:opacity-60" style={{ background: 'linear-gradient(135deg, #00D4FF, #8B5CF6)' }}>
                   {isSubmitting ? 'Входим...' : 'Войти'}
+                </button>
+                <div className="flex justify-between">
+                  <button type="button" onClick={() => { setEmailMode('signup'); setEmailError('') }} className="text-xs text-[#5A5A5E] hover:text-[#8A8A8E] transition-colors">
+                    Нет аккаунта? Зарегистрироваться
+                  </button>
+                  <button type="button" onClick={() => { setEmailMode('forgot'); setEmailError('') }} className="text-xs text-[#5A5A5E] hover:text-[#8A8A8E] transition-colors">
+                    Забыли пароль?
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {/* Sign Up form */}
+            {emailMode === 'signup' && (
+              <form onSubmit={handleEmailSignUp} className="flex flex-col gap-2">
+                <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required className="bg-[#1A1A1E] border border-[#2A2A2E] rounded-lg px-3 py-2 text-sm text-[#F5F5F5] w-full focus:border-[#00D4FF] outline-none" />
+                <input type="password" placeholder="Пароль (минимум 6 символов)" value={password} onChange={e => setPassword(e.target.value)} required className="bg-[#1A1A1E] border border-[#2A2A2E] rounded-lg px-3 py-2 text-sm text-[#F5F5F5] w-full focus:border-[#00D4FF] outline-none" />
+                <input type="password" placeholder="Повторите пароль" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required className="bg-[#1A1A1E] border border-[#2A2A2E] rounded-lg px-3 py-2 text-sm text-[#F5F5F5] w-full focus:border-[#00D4FF] outline-none" />
+                {emailError && <p className="text-xs text-red-400">{emailError}</p>}
+                <button type="submit" disabled={isSubmitting} className="w-full rounded-lg py-2 text-sm font-medium text-white transition disabled:opacity-60" style={{ background: 'linear-gradient(135deg, #00D4FF, #8B5CF6)' }}>
+                  {isSubmitting ? 'Создаём аккаунт...' : 'Создать аккаунт'}
+                </button>
+                <button type="button" onClick={() => { setEmailMode('signin'); setEmailError('') }} className="text-xs text-[#5A5A5E] hover:text-[#8A8A8E] transition-colors text-center">
+                  Уже есть аккаунт? Войти
+                </button>
+              </form>
+            )}
+
+            {/* Forgot password form */}
+            {emailMode === 'forgot' && (
+              <form onSubmit={handleForgotPassword} className="flex flex-col gap-2">
+                {emailSuccess ? (
+                  <p className="text-xs text-[#00D4FF] text-center py-2">{emailSuccess}</p>
+                ) : (
+                  <>
+                    <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required className="bg-[#1A1A1E] border border-[#2A2A2E] rounded-lg px-3 py-2 text-sm text-[#F5F5F5] w-full focus:border-[#00D4FF] outline-none" />
+                    {emailError && <p className="text-xs text-red-400">{emailError}</p>}
+                    <button type="submit" disabled={isSubmitting} className="w-full rounded-lg py-2 text-sm font-medium text-white transition disabled:opacity-60" style={{ background: 'linear-gradient(135deg, #00D4FF, #8B5CF6)' }}>
+                      {isSubmitting ? 'Отправляем...' : 'Отправить ссылку для сброса'}
+                    </button>
+                  </>
+                )}
+                <button type="button" onClick={() => { setEmailMode('signin'); setEmailError(''); setEmailSuccess('') }} className="text-xs text-[#5A5A5E] hover:text-[#8A8A8E] transition-colors text-center">
+                  ← Назад
                 </button>
               </form>
             )}
@@ -166,39 +245,81 @@ export function GateModal() {
                 ? 'В демо-режиме доступен 1 креатив на цепочку (всего 3). Оформите подписку, чтобы генерировать неограниченно.'
                 : isDemo
                 ? 'Вы использовали все 3 бесплатные цепочки. Оформите подписку для продолжения.'
+                : hasActiveSubscription
+                ? 'Ваши кредиты закончились. Докупите дополнительные кредиты или дождитесь следующего месяца.'
                 : 'На вашем балансе недостаточно кредитов. Продлите подписку.'}
             </p>
 
-            {/* Plan card */}
-            <div className="mb-6 rounded-xl border border-[#8B5CF6]/40 bg-[#1A1A22] p-5">
-              <div className="mb-1 flex items-center justify-between">
-                <span className="font-semibold text-[#F5F5F5]">Хукси Pro</span>
-                <span className="text-lg font-bold text-[#8B5CF6]">990 ₽/мес</span>
-              </div>
-              <ul className="space-y-1 text-sm text-[#8A8A8E]">
-                <li className="flex items-center gap-2">
-                  <span className="text-[#00D4FF]">✓</span> 300 кредитов в месяц
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-[#00D4FF]">✓</span> Неиспользованные кредиты переходят
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-[#00D4FF]">✓</span> До 20 изображений/мес (15 кр/шт)
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-[#00D4FF]">✓</span> Приоритетная генерация
-                </li>
-              </ul>
-            </div>
+            {/* Credits top-up (only for active subscribers with insufficient credits) */}
+            {gateReason === 'insufficient_credits' && hasActiveSubscription ? (
+              <>
+                <div className="mb-6 rounded-xl border border-[#00D4FF]/30 bg-[#0A1A1E] p-5">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="font-semibold text-[#F5F5F5]">Пакет кредитов</span>
+                    <span className="text-lg font-bold text-[#00D4FF]">290 ₽</span>
+                  </div>
+                  <ul className="space-y-1 text-sm text-[#8A8A8E]">
+                    <li className="flex items-center gap-2">
+                      <span className="text-[#00D4FF]">✓</span> 100 кредитов сразу после оплаты
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="text-[#00D4FF]">✓</span> Не сгорают — переходят на следующий месяц
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="text-[#00D4FF]">✓</span> ~6 изображений или 100 хуков
+                    </li>
+                  </ul>
+                </div>
 
-            <button
-              onClick={goToCheckout}
-              className="flex w-full items-center justify-center gap-2 rounded-xl py-3 font-semibold text-white transition hover:opacity-90"
-              style={{ background: 'linear-gradient(135deg, #00D4FF, #8B5CF6)' }}
-            >
-              <CreditCard size={18} />
-              Оформить подписку
-            </button>
+                {creditsError && <p className="text-xs text-red-400 mb-3 text-center">{creditsError}</p>}
+
+                <button
+                  onClick={buyCredits}
+                  disabled={buyingCredits}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl py-3 font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
+                  style={{ background: 'linear-gradient(135deg, #00D4FF, #8B5CF6)' }}
+                >
+                  {buyingCredits ? (
+                    <><Loader2 size={18} className="animate-spin" /> Переходим к оплате...</>
+                  ) : (
+                    <><CreditCard size={18} /> Купить 100 кредитов — 290 ₽</>
+                  )}
+                </button>
+              </>
+            ) : (
+              <>
+                {/* Plan card */}
+                <div className="mb-6 rounded-xl border border-[#8B5CF6]/40 bg-[#1A1A22] p-5">
+                  <div className="mb-1 flex items-center justify-between">
+                    <span className="font-semibold text-[#F5F5F5]">Хукси Pro</span>
+                    <span className="text-lg font-bold text-[#8B5CF6]">990 ₽/мес</span>
+                  </div>
+                  <ul className="space-y-1 text-sm text-[#8A8A8E]">
+                    <li className="flex items-center gap-2">
+                      <span className="text-[#00D4FF]">✓</span> 300 кредитов в месяц
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="text-[#00D4FF]">✓</span> Неиспользованные кредиты переходят
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="text-[#00D4FF]">✓</span> До 20 изображений/мес (15 кр/шт)
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="text-[#00D4FF]">✓</span> Приоритетная генерация
+                    </li>
+                  </ul>
+                </div>
+
+                <button
+                  onClick={goToCheckout}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl py-3 font-semibold text-white transition hover:opacity-90"
+                  style={{ background: 'linear-gradient(135deg, #00D4FF, #8B5CF6)' }}
+                >
+                  <CreditCard size={18} />
+                  Оформить подписку
+                </button>
+              </>
+            )}
           </>
         )}
       </div>

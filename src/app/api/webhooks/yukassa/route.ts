@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { sendSubscriptionEmail, sendCreditsEmail } from '@/lib/email'
 
-const CREDITS_FOR_BASE_PLAN = 200
+const CREDITS_FOR_BASE_PLAN = 300
 
 // POST /api/webhooks/yukassa?secret=<YUKASSA_WEBHOOK_SECRET>
 export async function POST(req: NextRequest) {
@@ -33,9 +34,50 @@ export async function POST(req: NextRequest) {
   }
 
   const admin = createAdminClient()
-
-  // Activate subscription (30 days)
   const now = new Date().toISOString()
+
+  // Credits top-up purchase (no subscription update)
+  if (plan.startsWith('credits_')) {
+    const creditsToAdd = parseInt(plan.replace('credits_', ''), 10)
+    if (!creditsToAdd || isNaN(creditsToAdd)) {
+      console.error('[webhook] Invalid credits plan:', plan)
+      return NextResponse.json({ error: 'Invalid plan' }, { status: 400 })
+    }
+
+    const { data: existingCredits } = await admin
+      .from('user_credits')
+      .select('balance')
+      .eq('user_id', user_id)
+      .maybeSingle()
+
+    const newBalance = (existingCredits?.balance ?? 0) + creditsToAdd
+
+    if (existingCredits) {
+      await admin.from('user_credits')
+        .update({ balance: newBalance, updated_at: now })
+        .eq('user_id', user_id)
+    } else {
+      await admin.from('user_credits').insert({ user_id, balance: newBalance })
+    }
+
+    await admin.from('credit_transactions').insert({
+      user_id,
+      amount: creditsToAdd,
+      action: 'purchase',
+    })
+
+    console.log('[webhook] credits top-up:', creditsToAdd, 'for user:', user_id)
+
+    // Send email notification
+    const { data: { user } } = await admin.auth.admin.getUserById(user_id)
+    if (user?.email) {
+      await sendCreditsEmail(user.email, creditsToAdd)
+    }
+
+    return NextResponse.json({ ok: true })
+  }
+
+  // Subscription purchase — activate subscription + add credits
   const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
 
   const { data: existingSub } = await admin
@@ -99,10 +141,15 @@ export async function POST(req: NextRequest) {
         .update({ uses_count: promo.uses_count + 1 })
         .eq('id', promo_id)
 
-      // Record per-user usage (ignore duplicate)
       await admin.from('promo_code_uses')
         .upsert({ code_id: promo_id, user_id }, { ignoreDuplicates: true })
     }
+  }
+
+  // Send subscription email
+  const { data: { user: subUser } } = await admin.auth.admin.getUserById(user_id)
+  if (subUser?.email) {
+    await sendSubscriptionEmail(subUser.email, CREDITS_FOR_BASE_PLAN)
   }
 
   return NextResponse.json({ ok: true })

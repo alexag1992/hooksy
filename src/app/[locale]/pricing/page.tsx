@@ -27,8 +27,7 @@ const t = {
     baseName: 'База',
     priceUnit: '₽/мес',
     priceHint: '= 3,3 ₽ за хук',
-    subscribeCta: 'Оформить подписку — скоро',
-    paymentHint: 'Приём платежей через ЮKassa — в разработке',
+    subscribeCta: 'Оформить подписку',
     individualName: 'Индивидуальный',
     individualPrice: 'По запросу',
     individualHint: 'Обсудим условия индивидуально',
@@ -60,8 +59,7 @@ const t = {
     baseName: 'Base',
     priceUnit: '₽/mo',
     priceHint: '= 3.3 ₽ per hook',
-    subscribeCta: 'Subscribe — coming soon',
-    paymentHint: 'Payments via YuKassa — in development',
+    subscribeCta: 'Subscribe',
     individualName: 'Custom',
     individualPrice: 'On request',
     individualHint: 'We\'ll discuss terms individually',
@@ -143,14 +141,13 @@ export default async function PricingPage({
             ))}
           </ul>
 
-          <button
-            className="mt-auto w-full py-3 rounded-xl text-white font-medium text-sm transition-opacity hover:opacity-90"
+          <Link
+            href="/checkout"
+            className="mt-auto w-full py-3 rounded-xl text-white font-medium text-sm text-center transition-opacity hover:opacity-90"
             style={{ background: 'linear-gradient(135deg, #00D4FF, #8B5CF6)' }}
-            disabled
           >
             {c.subscribeCta}
-          </button>
-          <p className="text-center text-xs text-[#3A3A3E]">{c.paymentHint}</p>
+          </Link>
         </div>
 
         {/* Individual plan */}

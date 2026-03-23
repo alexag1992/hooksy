@@ -42,6 +42,7 @@ export async function checkAndConsume(userId: string, action: CreditAction): Pro
     .select('status')
     .eq('user_id', userId)
     .eq('status', 'active')
+    .gt('expires_at', new Date().toISOString())
     .maybeSingle()
 
   if (sub) {

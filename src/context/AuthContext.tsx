@@ -31,6 +31,8 @@ interface AuthContextType {
   closeGate: () => void
   signInWithGoogle: () => void
   signInWithEmail: (email: string, password: string) => Promise<string | null>
+  signUp: (email: string, password: string) => Promise<string | null>
+  resetPasswordForEmail: (email: string) => Promise<string | null>
   signOut: () => void
   refreshUserData: () => Promise<void>
 }
@@ -47,6 +49,8 @@ const AuthContext = createContext<AuthContextType>({
   closeGate: () => {},
   signInWithGoogle: () => {},
   signInWithEmail: async () => null,
+  signUp: async () => null,
+  resetPasswordForEmail: async () => null,
   signOut: () => {},
   refreshUserData: async () => {},
 })
@@ -73,6 +77,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             .select('status')
             .eq('user_id', userId)
             .eq('status', 'active')
+            .gt('expires_at', new Date().toISOString())
             .maybeSingle(),
           supabase.from('profiles').select('is_admin').eq('id', userId).maybeSingle(),
         ])
@@ -132,6 +137,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return error ? error.message : null
   }, [supabase])
 
+  const signUp = useCallback(async (email: string, password: string): Promise<string | null> => {
+    const { error } = await supabase.auth.signUp({ email, password })
+    return error ? error.message : null
+  }, [supabase])
+
+  const resetPasswordForEmail = useCallback(async (email: string): Promise<string | null> => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth/reset-password`,
+    })
+    return error ? error.message : null
+  }, [supabase])
+
   const signOut = useCallback(async () => {
     await supabase.auth.signOut()
   }, [supabase])
@@ -157,6 +174,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         closeGate,
         signInWithGoogle,
         signInWithEmail,
+        signUp,
+        resetPasswordForEmail,
         signOut,
         refreshUserData,
       }}
