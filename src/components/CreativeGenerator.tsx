@@ -87,7 +87,7 @@ function ImageModal({ image, onClose }: { image: GeneratedImage; onClose: () => 
   )
 }
 
-function ImageCard({ image }: { image: GeneratedImage }) {
+function ImageCard({ image, onRetry }: { image: GeneratedImage; onRetry?: () => void }) {
   const [showModal, setShowModal] = useState(false)
 
   if (image.status === 'loading') {
@@ -101,8 +101,16 @@ function ImageCard({ image }: { image: GeneratedImage }) {
 
   if (image.status === 'error') {
     return (
-      <div className="aspect-square rounded-xl bg-[#1A1A1E] border border-[#EF4444]/30 flex items-center justify-center p-3">
+      <div className="aspect-square rounded-xl bg-[#1A1A1E] border border-[#EF4444]/30 flex flex-col items-center justify-center gap-2 p-3">
         <p className="text-[#EF4444] text-xs text-center leading-relaxed">{image.errorMsg}</p>
+        {onRetry && (
+          <button
+            onClick={onRetry}
+            className="text-xs text-[#00D4FF] hover:underline transition-colors"
+          >
+            Попробовать ещё раз
+          </button>
+        )}
       </div>
     )
   }
@@ -131,7 +139,7 @@ interface CreativeGeneratorProps {
 
 export function CreativeGenerator({ hook, adText }: CreativeGeneratorProps) {
   const t = useTranslations('creative')
-  const { images, generate } = useGenerateImage()
+  const { images, generate, retry } = useGenerateImage()
   const { hasActiveSubscription, isAdmin } = useAuth()
   const router = useRouter()
 
@@ -198,6 +206,7 @@ export function CreativeGenerator({ hook, adText }: CreativeGeneratorProps) {
 
   const hasGenerated = images.length > 0
   const isPaidUser = hasActiveSubscription || isAdmin
+  const hasSuccessfulImage = images.some((img) => img.status === 'ready')
   const canGenerate = (prompt.trim().length > 0 || useContext) && (!hasGenerated || isPaidUser)
   const selectedRatio = ASPECT_RATIOS.find((r) => r.value === aspectRatio) ?? ASPECT_RATIOS[0]
 
@@ -369,7 +378,7 @@ export function CreativeGenerator({ hook, adText }: CreativeGeneratorProps) {
             <p className="text-center text-[10px] text-[#3A3A3E]">15 кредитов</p>
           )}
 
-          {hasGenerated && !hasActiveSubscription && !isAdmin && (
+          {hasSuccessfulImage && !hasActiveSubscription && !isAdmin && (
             <p className="text-xs text-[#5A5A5E] text-center leading-relaxed">
               В демо-режиме — 1 креатив на цепочку.{' '}
               <button
@@ -387,7 +396,7 @@ export function CreativeGenerator({ hook, adText }: CreativeGeneratorProps) {
           <div className="flex-1 overflow-y-auto max-h-[500px]">
             <div className="grid grid-cols-2 gap-2">
               {images.map((img) => (
-                <ImageCard key={img.id} image={img} />
+                <ImageCard key={img.id} image={img} onRetry={img.status === 'error' ? () => retry(img.id) : undefined} />
               ))}
             </div>
           </div>

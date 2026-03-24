@@ -105,3 +105,47 @@ export async function checkAndConsume(userId: string, action: CreditAction): Pro
 
   return { allowed: true }
 }
+
+/**
+ * Refunds a credit/demo slot when the action failed server-side (e.g. API timeout).
+ */
+export async function refundCredit(userId: string, action: CreditAction): Promise<void> {
+  const admin = createAdminClient()
+
+  const { data: sub } = await admin
+    .from('subscriptions')
+    .select('status')
+    .eq('user_id', userId)
+    .eq('status', 'active')
+    .gt('expires_at', new Date().toISOString())
+    .maybeSingle()
+
+  if (sub) {
+    const cost = CREDIT_COSTS[action]
+    const { data: row } = await admin
+      .from('user_credits')
+      .select('balance')
+      .eq('user_id', userId)
+      .maybeSingle()
+    if (row) {
+      await admin
+        .from('user_credits')
+        .update({ balance: row.balance + cost, updated_at: new Date().toISOString() })
+        .eq('user_id', userId)
+    }
+  } else {
+    const field =
+      action === 'hooks' ? 'hooks_used' : action === 'ad_text' ? 'ads_used' : 'images_used'
+    const { data: demo } = await admin
+      .from('demo_usage')
+      .select('hooks_used, ads_used, images_used')
+      .eq('user_id', userId)
+      .maybeSingle()
+    if (demo && (demo as Record<string, number>)[field] > 0) {
+      await admin
+        .from('demo_usage')
+        .update({ [field]: (demo as Record<string, number>)[field] - 1, updated_at: new Date().toISOString() })
+        .eq('user_id', userId)
+    }
+  }
+}

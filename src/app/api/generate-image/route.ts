@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { checkRateLimit } from '@/lib/rateLimit'
 import { getUser } from '@/lib/supabase/getUser'
-import { checkAndConsume } from '@/lib/credits'
+import { checkAndConsume, refundCredit } from '@/lib/credits'
 import type { ImageGenerateRequest, ImageGenerateResponse } from '@/types'
 
 const POLZA_API_URL = 'https://polza.ai/api/v1/media'
@@ -104,6 +104,9 @@ export async function POST(req: NextRequest) {
     },
   }
 
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), 90_000)
+
   try {
     const response = await fetch(POLZA_API_URL, {
       method: 'POST',
@@ -112,39 +115,23 @@ export async function POST(req: NextRequest) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(requestBody),
+      signal: controller.signal,
     })
+    clearTimeout(timeoutId)
 
     if (!response.ok) {
       const errorText = await response.text().catch(() => '')
-      let errorData: Record<string, unknown> = {}
-      try { errorData = JSON.parse(errorText) } catch { /* ignore */ }
-      const msg = (errorData.message as string) || (errorData.error as string) || response.statusText
-
       console.error('PolzaAI error:', response.status, response.statusText, errorText)
-
-      if (response.status === 402) {
-        return NextResponse.json(
-          { error: 'Недостаточно баланса на аккаунте PolzaAI. Пополните счёт на polza.ai' } as ImageGenerateResponse,
-          { status: 502 }
-        )
-      }
-
-      if (response.status === 401 || response.status === 403) {
-        return NextResponse.json(
-          { error: `Ошибка авторизации PolzaAI (${response.status}): ${msg}` } as ImageGenerateResponse,
-          { status: 502 }
-        )
-      }
 
       if (response.status === 422 || response.status === 400) {
         return NextResponse.json(
-          { error: `Ошибка: запрос нарушает правила генерации изображений (${msg})` } as ImageGenerateResponse,
+          { error: `Запрос нарушает правила генерации изображений. Попробуйте изменить описание.` } as ImageGenerateResponse,
           { status: 422 }
         )
       }
 
       return NextResponse.json(
-        { error: `Ошибка генерации (${response.status}): ${msg}` } as ImageGenerateResponse,
+        { error: `Сервис генерации изображений временно недоступен — попробуйте через минуту.` } as ImageGenerateResponse,
         { status: 502 }
       )
     }
@@ -202,9 +189,12 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ image_url: imageUrl } as ImageGenerateResponse)
   } catch (err) {
+    clearTimeout(timeoutId)
     console.error('generate-image error:', err)
+    // Refund credit since image was never generated
+    await refundCredit(user.id, 'image').catch(() => {})
     return NextResponse.json(
-      { error: 'Ошибка соединения с API PolzaAI' } as ImageGenerateResponse,
+      { error: 'Сервис генерации изображений не отвечает — попробуйте через минуту.' } as ImageGenerateResponse,
       { status: 500 }
     )
   }

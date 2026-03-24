@@ -1,22 +1,25 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { useAuth } from '@/context/AuthContext'
 import type { GeneratedImage, ImageGenerateRequest, ImageGenerateResponse } from '@/types'
 
 interface UseGenerateImageReturn {
   images: GeneratedImage[]
   generate: (params: ImageGenerateRequest) => Promise<void>
+  retry: (id: string) => Promise<void>
   clearImages: () => void
 }
 
 export function useGenerateImage(): UseGenerateImageReturn {
   const [images, setImages] = useState<GeneratedImage[]>([])
   const { openGate, refreshUserData } = useAuth()
+  const paramsRef = useRef<Map<string, ImageGenerateRequest>>(new Map())
 
   const generate = useCallback(
     async (params: ImageGenerateRequest) => {
       const id = crypto.randomUUID()
+      paramsRef.current.set(id, params)
 
       // Add loading placeholder immediately
       setImages((prev) => [...prev, { id, status: 'loading' }])
@@ -70,7 +73,7 @@ export function useGenerateImage(): UseGenerateImageReturn {
         setImages((prev) =>
           prev.map((img) =>
             img.id === id
-              ? { id, status: 'error', errorMsg: 'Ошибка соединения с API PolzaAI' }
+              ? { id, status: 'error', errorMsg: 'Сервис генерации изображений не отвечает — попробуйте через минуту.' }
               : img
           )
         )
@@ -79,7 +82,18 @@ export function useGenerateImage(): UseGenerateImageReturn {
     [openGate, refreshUserData]
   )
 
+  const retry = useCallback(
+    async (id: string) => {
+      const params = paramsRef.current.get(id)
+      if (!params) return
+      paramsRef.current.delete(id)
+      setImages((prev) => prev.filter((img) => img.id !== id))
+      await generate(params)
+    },
+    [generate]
+  )
+
   const clearImages = useCallback(() => setImages([]), [])
 
-  return { images, generate, clearImages }
+  return { images, generate, retry, clearImages }
 }
