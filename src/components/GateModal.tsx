@@ -231,7 +231,7 @@ export function GateModal() {
           <>
             <h2 className="mb-2 text-center text-xl font-bold text-[#F5F5F5]">
               {isUpgrade
-                ? 'Хукси Pro'
+                ? 'Хукси База'
                 : isDemoImage
                 ? 'Лимит креативов в демо'
                 : isDemo
@@ -291,7 +291,7 @@ export function GateModal() {
                 {/* Plan card */}
                 <div className="mb-6 rounded-xl border border-[#8B5CF6]/40 bg-[#1A1A22] p-5">
                   <div className="mb-1 flex items-center justify-between">
-                    <span className="font-semibold text-[#F5F5F5]">Хукси Pro</span>
+                    <span className="font-semibold text-[#F5F5F5]">Хукси База</span>
                     <span className="text-lg font-bold text-[#8B5CF6]">990 ₽/мес</span>
                   </div>
                   <ul className="space-y-1 text-sm text-[#8A8A8E]">

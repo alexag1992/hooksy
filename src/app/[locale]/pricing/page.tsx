@@ -13,8 +13,8 @@ export async function generateMetadata({
   return {
     title: isRu ? 'Тарифы — Хукси' : 'Pricing — Hooksy',
     description: isRu
-      ? 'Подписка Хукси Pro — 990 ₽/мес, 300 кредитов. Генерируйте хуки, тексты объявлений и рекламные креативы без ограничений.'
-      : 'Hooksy Pro subscription — 990 ₽/mo, 300 credits. Generate hooks, ad texts and creatives without limits.',
+      ? 'Подписка Хукси База — 990 ₽/мес, 300 кредитов. Генерируйте хуки, тексты объявлений и рекламные креативы без ограничений.'
+      : 'Hooksy Base subscription — 990 ₽/mo, 300 credits. Generate hooks, ad texts and creatives without limits.',
     robots: { index: true, follow: true },
   }
 }

@@ -57,7 +57,7 @@ export default async function OfertaPage({
       <section className="mb-8">
         <h2 className="text-lg font-semibold text-[#F5F5F5] mb-3">3. Стоимость и порядок оплаты</h2>
         <div className="mb-4 p-4 rounded-xl bg-[#141416] border border-[#2A2A2E]">
-          <p className="font-semibold text-[#F5F5F5] mb-2">Тарифный план «Хукси Pro»</p>
+          <p className="font-semibold text-[#F5F5F5] mb-2">Тарифный план «Хукси База»</p>
           <ul className="space-y-1 text-sm">
             <li>— Стоимость: <strong className="text-[#F5F5F5]">990 рублей в месяц</strong></li>
             <li>— Включено: 300 кредитов в месяц</li>
