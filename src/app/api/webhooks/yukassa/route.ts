@@ -68,10 +68,14 @@ export async function POST(req: NextRequest) {
 
     console.log('[webhook] credits top-up:', creditsToAdd, 'for user:', user_id)
 
-    // Send email notification
-    const { data: { user } } = await admin.auth.admin.getUserById(user_id)
-    if (user?.email) {
-      await sendCreditsEmail(user.email, creditsToAdd)
+    // Send email notification (non-critical)
+    try {
+      const { data: { user } } = await admin.auth.admin.getUserById(user_id)
+      if (user?.email) {
+        await sendCreditsEmail(user.email, creditsToAdd)
+      }
+    } catch (e) {
+      console.error('[webhook] Failed to send credits email:', e)
     }
 
     return NextResponse.json({ ok: true })
@@ -146,10 +150,14 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Send subscription email
-  const { data: { user: subUser } } = await admin.auth.admin.getUserById(user_id)
-  if (subUser?.email) {
-    await sendSubscriptionEmail(subUser.email, CREDITS_FOR_BASE_PLAN)
+  // Send subscription email (non-critical)
+  try {
+    const { data: { user: subUser } } = await admin.auth.admin.getUserById(user_id)
+    if (subUser?.email) {
+      await sendSubscriptionEmail(subUser.email, CREDITS_FOR_BASE_PLAN)
+    }
+  } catch (e) {
+    console.error('[webhook] Failed to send subscription email:', e)
   }
 
   return NextResponse.json({ ok: true })
