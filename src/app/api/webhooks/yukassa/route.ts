@@ -6,21 +6,16 @@ const CREDITS_FOR_BASE_PLAN = 300
 
 // POST /api/webhooks/yukassa?secret=<YUKASSA_WEBHOOK_SECRET>
 export async function POST(req: NextRequest) {
-  console.log('[webhook] hit:', req.method, req.url)
-
   // Verify webhook secret
   const { searchParams } = new URL(req.url)
   const secret = searchParams.get('secret')
-  console.log('[webhook] secret match:', secret === process.env.YUKASSA_WEBHOOK_SECRET, 'env set:', !!process.env.YUKASSA_WEBHOOK_SECRET)
 
   if (!secret || secret !== process.env.YUKASSA_WEBHOOK_SECRET) {
-    console.error('[webhook] Forbidden - secret mismatch')
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
   const body = await req.json()
   const { event, object: payment } = body
-  console.log('[webhook] event:', event, 'payment id:', payment?.id)
 
   // Only handle succeeded payments
   if (event !== 'payment.succeeded') {
@@ -40,7 +35,6 @@ export async function POST(req: NextRequest) {
   if (plan.startsWith('credits_')) {
     const creditsToAdd = parseInt(plan.replace('credits_', ''), 10)
     if (!creditsToAdd || isNaN(creditsToAdd)) {
-      console.error('[webhook] Invalid credits plan:', plan)
       return NextResponse.json({ error: 'Invalid plan' }, { status: 400 })
     }
 
@@ -66,8 +60,6 @@ export async function POST(req: NextRequest) {
       action: 'purchase',
     })
 
-    console.log('[webhook] credits top-up:', creditsToAdd, 'for user:', user_id)
-
     // Send email notification (non-critical)
     try {
       const { data: { user } } = await admin.auth.admin.getUserById(user_id)
@@ -81,14 +73,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true })
   }
 
-  // Subscription purchase — activate subscription + add credits
-  const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
-
+  // Subscription purchase — idempotency check
   const { data: existingSub } = await admin
     .from('subscriptions')
-    .select('id')
+    .select('id, payment_id')
     .eq('user_id', user_id)
     .maybeSingle()
+
+  const alreadyActivated = existingSub?.payment_id === payment.id
+  if (alreadyActivated) {
+    return NextResponse.json({ ok: true })
+  }
+
+  // Activate subscription + add credits
+  const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
 
   if (existingSub) {
     await admin.from('subscriptions').update({

@@ -39,7 +39,7 @@ function ResetPasswordContent() {
     if (error) setError('Не удалось обновить пароль. Попробуйте снова.')
     else {
       setStage('success')
-      setTimeout(() => router.push('/ru'), 2500)
+      setTimeout(() => router.push('/'), 2500)
     }
   }
 
@@ -70,7 +70,7 @@ function ResetPasswordContent() {
           <div style={{ textAlign: 'center' }}>
             <p style={{ color: '#F5F5F5', fontWeight: 600, marginBottom: 8 }}>Ссылка недействительна</p>
             <p style={{ color: '#8A8A8E', fontSize: 14, marginBottom: 24 }}>Запросите новую ссылку для сброса пароля.</p>
-            <a href="/ru" style={{ color: '#00D4FF', fontSize: 14, textDecoration: 'none' }}>← На главную</a>
+            <a href="/" style={{ color: '#00D4FF', fontSize: 14, textDecoration: 'none' }}>← На главную</a>
           </div>
         )}
 

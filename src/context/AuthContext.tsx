@@ -139,6 +139,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signUp = useCallback(async (email: string, password: string): Promise<string | null> => {
     const { error } = await supabase.auth.signUp({ email, password })
+    if (!error) {
+      // Fire-and-forget welcome email
+      fetch('/api/auth/send-welcome', { method: 'POST' }).catch(() => {})
+    }
     return error ? error.message : null
   }, [supabase])
 
