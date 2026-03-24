@@ -10,6 +10,7 @@ const vars = [
   'YUKASSA_SHOP_ID',
   'YUKASSA_SECRET_KEY',
   'YUKASSA_WEBHOOK_SECRET',
+  'RESEND_API_KEY',
 ]
 
 const lines = vars
