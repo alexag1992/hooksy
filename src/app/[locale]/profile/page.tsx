@@ -3,7 +3,7 @@
 import { useAuth } from '@/context/AuthContext'
 import { DEMO_LIMITS, CREDIT_COSTS } from '@/lib/credits'
 import { Link, useRouter } from '@/i18n/navigation'
-import { Coins, Zap, User, LogOut, ShieldCheck, TrendingUp, TrendingDown } from 'lucide-react'
+import { Coins, Zap, User, LogOut, ShieldCheck, TrendingUp, TrendingDown, FlaskConical } from 'lucide-react'
 import { useLocale } from 'next-intl'
 import { useEffect, useState } from 'react'
 
@@ -30,6 +30,8 @@ const i18n = {
     adminSub: 'Все лимиты сняты',
     proPlan: 'Хукси База активна',
     proSub: '990 ₽/мес',
+    testerMode: 'Тестировщик',
+    testerSub: 'Тестовый доступ с кредитами',
     demoMode: 'Демо-режим',
     demoSub: 'Бесплатный доступ с ограничениями',
     upgrade: 'Upgrade',
@@ -54,6 +56,8 @@ const i18n = {
     adminSub: 'All limits removed',
     proPlan: 'Hooksy Base active',
     proSub: '990 ₽/mo',
+    testerMode: 'Tester',
+    testerSub: 'Test access with credits',
     demoMode: 'Demo mode',
     demoSub: 'Free access with limitations',
     upgrade: 'Upgrade',
@@ -84,7 +88,7 @@ function StatCard({ label, value, sub }: { label: string; value: string | number
 }
 
 export default function ProfilePage() {
-  const { user, loading, credits, demoUsage, hasActiveSubscription, isAdmin, signOut } = useAuth()
+  const { user, loading, credits, demoUsage, hasActiveSubscription, isAdmin, isTester, signOut } = useAuth()
   const router = useRouter()
   const locale = useLocale() as 'ru' | 'en'
   const c = locale === 'ru' ? i18n.ru : i18n.en
@@ -172,6 +176,21 @@ export default function ProfilePage() {
             <p className="text-xs text-[#5A5A5E]">{c.adminSub}</p>
           </div>
         </div>
+      ) : isTester ? (
+        <div className="rounded-xl border border-[#F59E0B]/30 bg-[#F59E0B]/5 p-4 mb-6 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <FlaskConical className="h-5 w-5 text-[#F59E0B] shrink-0" />
+            <div>
+              <p className="text-sm font-semibold text-[#F59E0B]">{c.testerMode}</p>
+              <p className="text-xs text-[#5A5A5E]">{c.testerSub}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#141416] border border-[#2A2A2E]">
+            <Coins className="h-4 w-4 text-[#F59E0B]" />
+            <span className="text-sm font-semibold text-[#F5F5F5]">{credits}</span>
+            <span className="text-xs text-[#5A5A5E]">{locale === 'ru' ? 'кр' : 'cr'}</span>
+          </div>
+        </div>
       ) : hasActiveSubscription ? (
         <div className="rounded-xl border border-[#00D4FF]/30 bg-[#00D4FF]/5 p-4 mb-6 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
@@ -207,7 +226,7 @@ export default function ProfilePage() {
       )}
 
       {/* Stats */}
-      {!hasActiveSubscription && !isAdmin && demoUsage && (
+      {!hasActiveSubscription && !isAdmin && !isTester && demoUsage && (
         <div className="mb-6">
           <p className="text-xs text-[#5A5A5E] mb-3 uppercase tracking-wide">{c.usedInDemo}</p>
           <div className="grid grid-cols-3 sm:grid-cols-3 gap-2 sm:gap-3">

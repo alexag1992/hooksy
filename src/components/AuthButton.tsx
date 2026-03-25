@@ -6,7 +6,7 @@ import { DEMO_LIMITS } from '@/lib/credits'
 import { Link } from '@/i18n/navigation'
 
 export function AuthButton() {
-  const { user, loading, credits, demoUsage, hasActiveSubscription, isAdmin, signOut, openGate } =
+  const { user, loading, credits, demoUsage, hasActiveSubscription, isAdmin, isTester, signOut, openGate } =
     useAuth()
 
   if (loading) {
@@ -37,6 +37,11 @@ export function AuthButton() {
       ) : hasActiveSubscription ? (
         <div className="flex items-center gap-1 rounded-lg bg-[#1E1E22] px-3 py-1.5 text-sm text-[#F5F5F5]">
           <Coins size={14} className="text-[#00D4FF]" />
+          <span>{credits} кр</span>
+        </div>
+      ) : isTester ? (
+        <div className="flex items-center gap-1 rounded-lg bg-[#1E1E22] px-3 py-1.5 text-sm text-[#F5F5F5] border border-[#F59E0B]/20">
+          <Coins size={14} className="text-[#F59E0B]" />
           <span>{credits} кр</span>
         </div>
       ) : demoLeft === null ? (
