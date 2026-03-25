@@ -26,6 +26,7 @@ interface AuthContextType {
   demoUsage: DemoUsage | null
   hasActiveSubscription: boolean
   isAdmin: boolean
+  isTester: boolean
   gateReason: GateReason | null
   openGate: (reason: GateReason) => void
   closeGate: () => void
@@ -44,6 +45,7 @@ const AuthContext = createContext<AuthContextType>({
   demoUsage: null,
   hasActiveSubscription: false,
   isAdmin: false,
+  isTester: false,
   gateReason: null,
   openGate: () => {},
   closeGate: () => {},
@@ -62,6 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [demoUsage, setDemoUsage] = useState<DemoUsage | null>(null)
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)
+  const [isTester, setIsTester] = useState(false)
   const [gateReason, setGateReason] = useState<GateReason | null>(null)
 
   const supabase = createClient()
@@ -79,12 +82,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             .eq('status', 'active')
             .gt('expires_at', new Date().toISOString())
             .maybeSingle(),
-          supabase.from('profiles').select('is_admin').eq('id', userId).maybeSingle(),
+          supabase.from('profiles').select('is_admin, is_tester').eq('id', userId).maybeSingle(),
         ])
         setCredits(creditsRes.data?.balance ?? 0)
         setDemoUsage(demoRes.data ?? null)
         setHasActiveSubscription(!!subRes.data)
         setIsAdmin(!!profileRes.data?.is_admin)
+        setIsTester(!!profileRes.data?.is_tester)
       } catch {
         // Non-critical — leave defaults
       }
@@ -116,6 +120,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setDemoUsage(null)
         setHasActiveSubscription(false)
         setIsAdmin(false)
+        setIsTester(false)
       }
     })
 
@@ -173,6 +178,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         demoUsage,
         hasActiveSubscription,
         isAdmin,
+        isTester,
         gateReason,
         openGate,
         closeGate,

@@ -28,13 +28,15 @@ export async function checkAndConsume(userId: string, action: CreditAction): Pro
   // Admins bypass all limits
   const { data: profile } = await admin
     .from('profiles')
-    .select('is_admin')
+    .select('is_admin, is_tester')
     .eq('id', userId)
     .maybeSingle()
 
   if (profile?.is_admin) {
     return { allowed: true }
   }
+
+  const isTester = !!profile?.is_tester
 
   // Check active subscription
   const { data: sub } = await admin
@@ -45,8 +47,8 @@ export async function checkAndConsume(userId: string, action: CreditAction): Pro
     .gt('expires_at', new Date().toISOString())
     .maybeSingle()
 
-  if (sub) {
-    // Paid user — deduct credits
+  if (sub || isTester) {
+    // Paid user or tester — deduct credits
     const cost = CREDIT_COSTS[action]
 
     const { data: row } = await admin
@@ -112,6 +114,12 @@ export async function checkAndConsume(userId: string, action: CreditAction): Pro
 export async function refundCredit(userId: string, action: CreditAction): Promise<void> {
   const admin = createAdminClient()
 
+  const { data: profile } = await admin
+    .from('profiles')
+    .select('is_tester')
+    .eq('id', userId)
+    .maybeSingle()
+
   const { data: sub } = await admin
     .from('subscriptions')
     .select('status')
@@ -120,7 +128,7 @@ export async function refundCredit(userId: string, action: CreditAction): Promis
     .gt('expires_at', new Date().toISOString())
     .maybeSingle()
 
-  if (sub) {
+  if (sub || profile?.is_tester) {
     const cost = CREDIT_COSTS[action]
     const { data: row } = await admin
       .from('user_credits')

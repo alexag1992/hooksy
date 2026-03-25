@@ -11,6 +11,7 @@ interface UserRow {
   full_name: string | null
   created_at: string
   is_admin: boolean
+  is_tester: boolean
   hooks_used: number
   ads_used: number
   images_used: number
@@ -47,6 +48,20 @@ function UsersTab() {
   }, [])
 
   useEffect(() => { load() }, [load])
+
+  const toggleTester = async (userId: string, currentValue: boolean) => {
+    const res = await fetch('/api/admin/toggle-tester', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId }),
+    })
+    if (res.ok) {
+      setUsers(prev => prev.map(u => u.id === userId
+        ? { ...u, is_tester: !currentValue, credits: !currentValue ? u.credits + 100 : u.credits }
+        : u
+      ))
+    }
+  }
 
   const grantCredits = async () => {
     if (!grantUserId || !grantAmount) return
@@ -120,9 +135,20 @@ function UsersTab() {
                 <tr key={u.id} className="border-b border-[#1E1E22] hover:bg-[#1A1A1E] transition-colors">
                   <td className="px-4 py-3 text-[#F5F5F5] max-w-[200px] truncate">{u.email}</td>
                   <td className="px-4 py-3 text-center">
-                    {u.is_admin ? <span className="text-[#8B5CF6]">Admin</span>
-                      : u.has_sub ? <span className="text-[#00D4FF]">Pro</span>
-                      : <span className="text-[#5A5A5E]">Демо</span>}
+                    <div className="flex flex-col items-center gap-1">
+                      {u.is_admin ? <span className="text-[#8B5CF6]">Admin</span>
+                        : u.has_sub ? <span className="text-[#00D4FF]">Pro</span>
+                        : u.is_tester ? <span className="text-[#F59E0B]">Тестер</span>
+                        : <span className="text-[#5A5A5E]">Демо</span>}
+                      {!u.is_admin && (
+                        <button
+                          onClick={() => toggleTester(u.id, u.is_tester)}
+                          className={`text-[10px] px-2 py-0.5 rounded border transition-colors ${u.is_tester ? 'border-[#F59E0B]/40 text-[#F59E0B] hover:bg-[#F59E0B]/10' : 'border-[#2A2A2E] text-[#5A5A5E] hover:text-[#8A8A8E]'}`}
+                        >
+                          {u.is_tester ? '✕ тестер' : '+ тестер'}
+                        </button>
+                      )}
+                    </div>
                   </td>
                   <td className="px-4 py-3 text-center text-[#8A8A8E]">{u.hooks_used}</td>
                   <td className="px-4 py-3 text-center text-[#8A8A8E]">{u.ads_used}</td>
