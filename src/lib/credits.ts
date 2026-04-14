@@ -1,3 +1,4 @@
+import { cookies } from 'next/headers'
 import { createAdminClient } from '@/lib/supabase/admin'
 
 export const CREDIT_COSTS = {
@@ -23,6 +24,12 @@ type CheckResult =
  * Uses the service-role admin client (bypasses RLS).
  */
 export async function checkAndConsume(userId: string, action: CreditAction): Promise<CheckResult> {
+  // Staff portal bypass — сотрудники без ограничений
+  const cookieStore = await cookies()
+  if (cookieStore.get('hooksy_staff')?.value === 'true') {
+    return { allowed: true }
+  }
+
   const admin = createAdminClient()
 
   // Admins bypass all limits

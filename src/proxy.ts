@@ -2,10 +2,26 @@ import { createServerClient } from '@supabase/ssr'
 import createIntlMiddleware from 'next-intl/middleware'
 import { NextResponse, type NextRequest } from 'next/server'
 import { routing } from '@/i18n/routing'
+import { verifyStaffToken } from '@/lib/staffAuth'
 
 const handleI18nRouting = createIntlMiddleware(routing)
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
+  // Staff portal bypass: set cookie and redirect to clean URL
+  const staffToken = request.nextUrl.searchParams.get('staff_token')
+  if (staffToken && verifyStaffToken(staffToken)) {
+    const url = request.nextUrl.clone()
+    url.searchParams.delete('staff_token')
+    const res = NextResponse.redirect(url)
+    res.cookies.set('hooksy_staff', 'true', {
+      httpOnly: true,
+      sameSite: 'lax',
+      maxAge: 8 * 3600, // 8 часов (рабочий день)
+      path: '/',
+    })
+    return res
+  }
+
   // Run next-intl routing first (handles locale redirects/rewrites)
   const intlResponse = handleI18nRouting(request)
 

@@ -1,9 +1,15 @@
 import OpenAI from 'openai'
 
-if (!process.env.OPENAI_API_KEY) {
-  console.warn('OPENAI_API_KEY is not set. Using fallback templates.')
+const apiKey = process.env.POLZA_AI_API_KEY || process.env.OPENAI_API_KEY
+const baseURL = process.env.POLZA_AI_API_KEY
+  ? 'https://api.polza.ai/v1'
+  : undefined
+
+if (!apiKey) {
+  console.warn('No AI API key set. Using fallback templates.')
 }
 
 export const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || 'placeholder',
+  apiKey: apiKey || 'placeholder',
+  baseURL,
 })
