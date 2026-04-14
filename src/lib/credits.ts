@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { CREDIT_COSTS, DEMO_LIMITS } from '@/lib/creditConfig'
+import { CREDIT_COSTS, DEMO_LIMITS, type CreditAction } from '@/lib/creditConfig'
 
 export { CREDIT_COSTS, DEMO_LIMITS } from '@/lib/creditConfig'
 export type { CreditAction } from '@/lib/creditConfig'
