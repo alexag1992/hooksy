@@ -6,7 +6,7 @@ import { verifyStaffToken } from '@/lib/staffAuth'
 
 const handleI18nRouting = createIntlMiddleware(routing)
 
-export async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   // Staff portal bypass: set cookie and redirect to clean URL
   const staffToken = request.nextUrl.searchParams.get('staff_token')
   if (staffToken && verifyStaffToken(staffToken)) {
