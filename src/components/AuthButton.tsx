@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/context/AuthContext'
 import { LogOut, Coins } from 'lucide-react'
-import { DEMO_LIMITS } from '@/lib/credits'
+import { DEMO_LIMITS } from '@/lib/creditConfig'
 import { Link } from '@/i18n/navigation'
 
 export function AuthButton() {

@@ -1,7 +1,7 @@
 'use client'
 
 import { useAuth } from '@/context/AuthContext'
-import { DEMO_LIMITS } from '@/lib/credits'
+import { DEMO_LIMITS } from '@/lib/creditConfig'
 import { Sparkles } from 'lucide-react'
 
 function ProgressRow({ label, used, max }: { label: string; used: number; max: number }) {

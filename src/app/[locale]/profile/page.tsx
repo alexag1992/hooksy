@@ -1,7 +1,7 @@
 'use client'
 
 import { useAuth } from '@/context/AuthContext'
-import { DEMO_LIMITS, CREDIT_COSTS } from '@/lib/credits'
+import { DEMO_LIMITS, CREDIT_COSTS } from '@/lib/creditConfig'
 import { Link, useRouter } from '@/i18n/navigation'
 import { Coins, Zap, User, LogOut, ShieldCheck, TrendingUp, TrendingDown, FlaskConical } from 'lucide-react'
 import { useLocale } from 'next-intl'
