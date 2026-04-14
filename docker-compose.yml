@@ -2,7 +2,19 @@ services:
   hooksy:
     build: .
     restart: unless-stopped
-    ports:
-      - "3001:3000"
     env_file:
       - .env.local
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.hooksy.rule=Host(`hooksy.ru`) || Host(`www.hooksy.ru`)
+      - traefik.http.routers.hooksy.entrypoints=web,websecure
+      - traefik.http.routers.hooksy.tls=true
+      - traefik.http.routers.hooksy.tls.certresolver=mytlschallenge
+      - traefik.http.services.hooksy.loadbalancer.server.port=3000
+    networks:
+      - traefik_net
+
+networks:
+  traefik_net:
+    external: true
+    name: n8n_default
